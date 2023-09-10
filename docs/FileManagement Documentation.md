@@ -1,78 +1,65 @@
-# Financial Data Processing Script Documentation
+# Schwab Portfolio Statements Processor
 
 ## Overview
 
-This script is designed for processing financial data, specifically related to portfolio statements. It handles various tasks such as extracting information from configuration files, cleaning text data from PDF statements, and validating statement files.
+This Python script is designed to process Schwab Portfolio Statements in PDF format. It performs various tasks including extracting data from the statements, validating statement filenames, and more. This documentation provides an overview of the script's structure, functions, and usage.
 
 ## Table of Contents
 
-1. [File Paths](#file-paths)
-2. [Logging Configuration](#logging-configuration)
-3. [Asset Types](#asset-types)
-4. [Function: `symbol_corresponding_to_asset`](#function-symbol_corresponding_to_asset)
-5. [Function: `clean_text_lines_from_page`](#function-clean_text_lines_from_page)
-6. [Function: `extract_schwab_statements`](#function-extract_schwab_statements)
-7. [Function: `extract_fixed_income_etf_tickers`](#function-extract_fixed_income_etf_tickers)
-8. [Function: `validate_statement_files`](#function-validate_statement_files)
-9. [Function: `validated_file_path`](#function-validated_file_path)
+- [File Structure](#file-structure)
+- [Configuration](#configuration)
+- [Functions](#functions)
+  - [extract_schwab_statements](#extract_schwab_statements)
+  - [extract_fixed_income_etf_tickers](#extract_fixed_income_etf_tickers)
+  - [validate_statement_files](#validate_statement_files)
+  - [validated_file_path](#validated_file_path)
 
-## 1. File Paths <a name="file-paths"></a>
+## File Structure
 
-- `_config_file_path`: Path to the configuration file.
-- `_statements_directory_path`: Path to the directory containing statement files.
-- `_statement_folder_path`: Path to the folder containing statement files.
+The script consists of the following components:
 
-## 2. Logging Configuration <a name="logging-configuration"></a>
+- **Main Script**: The main script is responsible for processing Schwab Portfolio Statements. It includes functions to read configuration files, validate statement filenames, and perform various data extraction tasks.
 
-- `logging.basicConfig()`: Configures logging settings.
-- `logger`: Creates a logger instance for the current module.
+- **Configuration File (`config.json`)**: This JSON file stores configuration data used by the script, such as Schwab Portfolio Statements information and fixed income ETF tickers.
 
-## 3. Asset Types <a name="asset-types"></a>
+- **Statements Directory (`Statements`)**: This folder contains the PDF statement files that need to be processed. The script validates and extracts data from these files.
 
-- Defines various asset types used in the script, such as equities, treasuries, corporate bonds, etc.
-- `all_asset_types`: A list of all defined asset types.
-- `asset_types_as_shown_per_section`: A dictionary mapping asset types to their representation in configuration.
+## Configuration
 
-## 4. Function: `symbol_corresponding_to_asset` <a name="function-symbol_corresponding_to_asset"></a>
+Before running the script, you should configure the `config.json` file to specify Schwab Portfolio Statements and fixed income ETF information. Here's how to configure it:
 
-- **Description**: Retrieves the symbol corresponding to a given asset type.
-- **Parameters**:
-  - `asset` (str): The asset type for which to retrieve the symbol.
-- **Returns**: The symbol corresponding to the input asset type (str).
-- **Raises**:
-  - `KeyError`: If the input asset type is not found in the configuration.
+- `Schwab Portfolio Statements`: Define the structure of Schwab Portfolio Statements as a dictionary in the configuration file. This structure is used for data extraction.
 
-## 5. Function: `clean_text_lines_from_page` <a name="function-clean_text_lines_from_page"></a>
+- `Fixed Income ETFs`: Specify a list of fixed income ETF tickers that the script will use.
 
-- **Description**: Cleans text lines from a page by removing specified line items.
-- **Parameters**:
-  - `text_lines` (List[str]): List of text lines from a page.
-  - `asset` (str): The asset string to identify lines to retain.
-- **Returns**: Cleaned list of text lines (Optional[List[str]]).
-- **Notes**: It retains lines that start with the 'asset' string and stops processing when it encounters a line indicating the end of sections.
+## Functions
 
-## 6. Function: `extract_schwab_statements` <a name="function-extract_schwab_statements"></a>
+### `extract_schwab_statements`
 
-- **Description**: Extracts the "Schwab Portfolio Statements" dictionary from the configuration file.
-- **Returns**: The "Schwab Portfolio Statements" dictionary from the configuration.
+This function extracts the "Schwab Portfolio Statements" dictionary from the `config.json` file. The extracted information is used to structure and extract data from the statements.
 
-## 7. Function: `extract_fixed_income_etf_tickers` <a name="function-extract_fixed_income_etf_tickers"></a>
+### `extract_fixed_income_etf_tickers`
 
-- **Description**: Extracts a list of fixed income ETF tickers from the configuration file.
-- **Returns**: A list of fixed income ETF tickers.
+This function extracts a list of fixed income ETF tickers from the `config.json` file. These tickers are used in data processing.
 
-## 8. Function: `validate_statement_files` <a name="function-validate_statement_files"></a>
+### `validate_statement_files`
 
-- **Description**: Validates the PDF statement files in the specified folder.
-- **Returns**: True if all filenames are valid, False otherwise.
-- **Raises**:
-  - `ValueError`: If a filename does not match the expected format.
+This function validates the PDF statement filenames in the `Statements` folder. It checks if the filenames follow the expected format, including the year and month. Invalid filenames result in a `ValueError` with an informative message.
 
-## 9. Function: `validated_file_path` <a name="function-validated_file_path"></a>
+### `validated_file_path`
 
-- **Description**: Validates and retrieves the full file path for a PDF statement.
-- **Parameters**:
-  - `base_file_name` (str): The base name of the PDF statement file.
-- **Returns**: The full file path for the PDF statement.
-- **Raises**:
-  - `ValueError`: If the specified PDF file does not exist in the statement folder.
+This function validates and retrieves the full file path for a PDF statement. It takes a base file name, appends it to the statement folder path, and checks if the corresponding PDF file exists. If the file is found, it returns the full file path; otherwise, it raises a `ValueError`.
+
+## Usage
+
+To use this script:
+
+1. Configure the `config.json` file with the appropriate information for Schwab Portfolio Statements and fixed income ETFs.
+
+2. Ensure that the PDF statement files are placed in the `Statements` folder with filenames in the format 'YYYY-Month.pdf'.
+
+3. Run the script to process the statements and extract data.
+
+## Conclusion
+
+This Python script provides a structured way to process Schwab Portfolio Statements and extract relevant data. By following the configuration guidelines and using the provided functions, you can efficiently work with financial data from these statements.
