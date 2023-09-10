@@ -185,9 +185,23 @@ def validate_statement_files() -> bool:
 
 
 def validated_file_path(base_file_name: str) -> str:
+    """
+    Validate and retrieve the full file path for a PDF statement.
+
+    This function takes a base file name, appends it to the statement folder path, and checks if the corresponding
+    PDF file exists. If the file is found, it returns the full file path; otherwise, it raises a `ValueError` with
+    an informative message.
+
+    :param base_file_name: The base name of the PDF statement file.
+    :type base_file_name: str
+    :return: The full file path for the PDF statement.
+    :rtype: str
+    :raises ValueError: If the specified PDF file does not exist in the statement folder.
+    """
     file_path = os.path.join(_statement_folder_path, f"{base_file_name}.pdf")
     file_was_found = os.path.isfile(file_path)
-    if file_was_found:
-        return f"{base_file_name}.pdf"
 
-    raise ValueError("")
+    if file_was_found:
+        return file_path
+    else:
+        raise ValueError(f"PDF file '{base_file_name}.pdf' not found in the statement folder.")
