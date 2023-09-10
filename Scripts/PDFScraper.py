@@ -12,17 +12,6 @@ config_file_path = "./config.json"
 statements_directory_path = "./Statements"
 _schwab_statement_paths: Dict[str, str] = FileManagement.extract_schwab_statements()
 
-_page_header_partial_items = [
-    "Schwab One® Account   of", "BARRY UNIVERSITY",
-    "Please see", "Account Number", "5774-6665", "Statement Period", "July 1-31, 2023", "Page"
-]
-
-_page_table_column_names = [
-    "Par", "Market Price", "Market Value", "% of Account", "Assets", "Unrealized", "Gain or (Loss)", "Accrued",
-    "Estimated", "Annual Income", "Cost Basis", "Yield to Maturity", "Quantity", "% of", "Account", "Yield",
-    "Market", "Price", "Market", "Value", "Average", "Income", "MOODY'S"
-]
-
 _months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
