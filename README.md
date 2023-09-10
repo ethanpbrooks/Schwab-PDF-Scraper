@@ -1,44 +1,47 @@
-# SMIF-Portfolio-Analysis
-# Portfolio Analysis Script
+# PDF Statement Data Extractor and Analyzer
 
-This script is designed for analyzing a financial portfolio. It uses a PDF scraper to extract financial data from PDF statements and provides methods to analyze the portfolio's asset composition, returns over time, and more.
+This Python script is designed to extract and analyze financial data from PDF statements, specifically tailored for Schwab statements. It provides functionality to read PDF files, extract text content, clean and process data, and convert it into Pandas DataFrames for further analysis.
 
-## Table of Contents
+## Features
 
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-   - [Prerequisites](#prerequisites)
-   - [Installation](#installation)
-3. [Usage](#usage)
-   - [Running the Script](#running-the-script)
-   - [Analyzing Your Portfolio](#analyzing-your-portfolio)
-4. [Documentation](#documentation)
-5. [Contributing](#contributing)
-6. [License](#license)
+- Extracts text content from PDF files.
+- Processes financial data from Schwab statements, including asset composition, equities, fixed income, options, and more.
+- Converts extracted data into Pandas DataFrames.
+- Handles specific financial data cleaning, such as removing commas and converting values to numeric types.
+- Supports swapping PDF content with a new file for analysis.
 
-## 1. Introduction <a name="introduction"></a>
+## Requirements
 
-Managing and analyzing a financial portfolio can be a complex task. This script aims to simplify the process by automating the extraction of financial data from PDF statements and providing tools to analyze asset composition and returns over time.
+- Python 3.x
+- Libraries: `fitz`, `os`, `pandas`, `logging`, and custom module `FileManagement` (provided separately).
 
-Key features of the script include:
+## Usage
 
-- Extraction of financial data from PDF statements.
-- Calculation of asset composition, including equities, fixed income, options, and more.
-- Calculation of portfolio returns over time.
-- Detailed documentation for easy usage and customization.
-
-## 2. Getting Started <a name="getting-started"></a>
-
-### Prerequisites <a name="prerequisites"></a>
-
-Before using this script, ensure you have the following prerequisites:
-
-- Python 3.7 or higher installed on your system.
-- Required Python packages, which can be installed using the provided `requirements.txt` file.
-
-### Installation <a name="installation"></a>
-
-1. Clone this repository to your local machine:
+1. Clone the repository to your local machine.
+2. Install the required Python libraries if you haven't already:
 
    ```bash
-   git clone https://github.com/your-username/portfolio-analysis-script.git
+   pip install PyMuPDF pandas
+3. Replace ./config.json with your configuration file if needed.
+4. Place your Schwab PDF statements in the ./Statements directory.
+5. Run the script:
+
+   ```bash
+   python your_script.py
+6. The script will extract and process data from the most recent Schwab statement by default. You can swap the PDF content with a new file using the swap_statement method.
+
+### Configuration
+The script relies on a config.json file for configuration settings.
+You can customize the list of statements to analyze and define line items to remove in the configuration file.
+
+### License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+### Acknowledgements
+- This script was created for educational and personal use.
+- The custom FileManagement module may include additional functions and configurations not covered in this README.
+
+### Disclaimer
+- This script is not intended for use in critical financial or investment decisions.
+- Always verify the accuracy and reliability of the extracted data.
+
