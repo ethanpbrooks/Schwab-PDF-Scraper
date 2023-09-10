@@ -105,9 +105,3 @@ Represents a portfolio of financial assets and provides methods to analyze its c
 
 ```python
 portfolio = Portfolio(Scripts.PDFScraper.pdf_scraper)
-
-This documentation provides an overview of the script's structure, properties, and methods. It serves as a reference for understanding and using the script for portfolio analysis.
-
-Please note that the script is still in development, and further updates and improvements may be made.
-
-Feel free to modify or expand the documentation as needed to provide additional details or context specific to your project.
