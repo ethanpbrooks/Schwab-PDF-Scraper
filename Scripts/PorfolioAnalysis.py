@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import logging
 import Scripts.PDFScraper
 import Scripts.FileManagement as FileManagement
 
