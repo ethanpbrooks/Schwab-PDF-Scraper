@@ -33,7 +33,7 @@ Represents a portfolio of financial assets and provides methods to analyze its c
 
 - **Description**: Retrieves the calculated asset composition of the portfolio.
 - **Properties**:
-  - `asset_composition`: A pandas DataFrame containing the asset composition of the portfolio.
+  - `asset_allocation`: A pandas DataFrame containing the asset composition of the portfolio.
 - **Methods**:
   - `_calculate_asset_allocation()`: Private method to calculate asset allocation.
 

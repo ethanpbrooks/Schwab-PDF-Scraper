@@ -16,7 +16,7 @@ The `PDFScraper` script is designed to extract and process investment data from 
      - [selected_schwab_statements](#selected-schwab-statements)
      - [currently_opened_statement](#currently-opened-statement)
      - [pdf](#pdf)
-     - [asset_composition](#asset-composition)
+     - [asset_allocation](#asset-composition)
      - [options_dataframe](#options-dataframe)
      - [equity_dataframe](#equity-dataframe)
      - [bond_funds_dataframe](#bond-funds-dataframe)
@@ -106,7 +106,7 @@ Get the currently opened Schwab statement file.
 
 Get the dictionary of extracted PDF content.
 
-#### asset_composition<a name="asset-composition"></a>
+#### asset_allocation<a name="asset-composition"></a>
 
 Get the DataFrame containing asset composition information.
 

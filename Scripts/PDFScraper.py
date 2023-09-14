@@ -90,6 +90,11 @@ def _symbol_corresponding_to_asset(asset: str) -> str:
     if asset not in FileManagement.asset_types_as_shown_per_section:
         raise KeyError(f"'{asset}' not found in configuration file!")
 
+
+    if asset == "Other Fixed Income":
+        return FileManagement.config["Symbols Corresponding to Each Asset Type"]["Partial Call"]
+
+
     translated_asset_name = FileManagement.asset_types_as_shown_per_section[asset]
     return FileManagement.config["Symbols Corresponding to Each Asset Type"][translated_asset_name]
 
@@ -181,7 +186,8 @@ def _extract_asset_data_from_text_lines(text_lines: List[str], asset: str) -> Li
         data_list.append(selected_asset_data)
 
     # Determine the number of columns based on asset type
-    n_of_columns = 4 if FileManagement.asset_types_as_shown_per_section[asset] in ["Fixed Income", "Options"] else 3
+    n_of_columns = 4 if FileManagement.asset_types_as_shown_per_section[asset] in [
+        "Fixed Income", "Options", "Other Fixed Income"] else 3
 
     # Create tuples with symbols and extracted data
     data_list = [tuple([symbol] + data[:n_of_columns]) for symbol, data in zip(symbols, data_list.copy())]
@@ -218,6 +224,10 @@ class PDFScraper:
         :return: A list of selected Schwab statement file names.
         """
         return self._selected_statements_to_analyze
+
+    @property
+    def symbols_of_fixed_income_etfs(self) -> List[str]:
+        return self._list_of_fixed_income_etf
 
     @property
     def currently_opened_statement(self) -> str:
@@ -285,7 +295,7 @@ class PDFScraper:
         return self._convert_generator_of_asset_data_to_dataframe("Bond Funds", equity_columns, equity_numeric)
 
     @property
-    def equity_fund_dataframe(self) -> pd.DataFrame:
+    def equity_funds_dataframe(self) -> pd.DataFrame:
         """
         Get the DataFrame containing equity fund investment information.
 
@@ -334,8 +344,20 @@ class PDFScraper:
         )
 
     @property
-    def other_corporate_bonds_dataframe(self) -> pd.DataFrame:
-        return self._convert_generator_of_asset_data_to_dataframe("Partial Call", fixed_income_columns, fi_numeric)
+    def bond_partial_calls(self) -> pd.DataFrame:
+        """
+        Retrieve a DataFrame containing information about bond partial calls.
+
+        This property method extracts and processes data related to bond partial calls
+        from the PDFScraper instance. It converts the extracted data into a pandas DataFrame
+        and returns it.
+
+        :return: A pandas DataFrame containing information about bond partial calls.
+        :rtype: pd.DataFrame
+        """
+        return self._convert_generator_of_asset_data_to_dataframe(
+            "Other Fixed Income", fixed_income_columns, fi_numeric
+        )
 
     @property
     def treasuries_dataframe(self) -> pd.DataFrame:
@@ -478,6 +500,7 @@ class PDFScraper:
 
         # Iterate through the asset sections and extract data
         for text_lines in asset_sections:
+
             if text_lines is None:
                 continue
 
