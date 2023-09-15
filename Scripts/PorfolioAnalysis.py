@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.stats import gmean
 import Scripts.PDFScraper
 import Scripts.FileManagement as FileManagement
 
@@ -72,6 +73,14 @@ class Portfolio:
     """
 
     pdf_scraper: Scripts.PDFScraper.PDFScraper
+
+    @property
+    def __version__(self) -> str:
+        """
+        Get the version of the Portfolio class.
+        :returns A string representing the version of the Portfolio class.
+        """
+        return "1.0.4"
 
     @property
     def asset_allocation(self) -> pd.DataFrame:
@@ -418,20 +427,18 @@ class Portfolio:
         return returns_over_selected_periods * 100
 
     def _calculate_returns_over_selected_periods(self, file_paths: List[str], revert_to_original_file: bool = True
-                                      ) -> pd.DataFrame:
+                                                 ) -> pd.DataFrame:
         """
         Calculate portfolio returns over selected time periods.
 
         This method calculates the percentage change in portfolio value over selected time periods.
         It uses the asset allocation at the beginning and end of each time period to compute the returns.
 
-        Args:
-            file_paths (List[str]): List of file paths to statements for each time period.
-            revert_to_original_file (bool, optional): Whether to revert to the original PDF file after calculation.
+        :param file_paths (List[str]): List of file paths to statements for each time period.
+        :param revert_to_original_file (bool, optional): Whether to revert to the original PDF file after calculation.
                 Defaults to True.
 
-        Returns:
-            pd.DataFrame: A DataFrame containing returns over the selected time periods, expressed as percentages.
+        :returns pd.DataFrame: A DataFrame containing returns over the selected time periods, expressed as percentages.
 
         """
         dataframes: List[pd.DataFrame] = []
@@ -444,7 +451,7 @@ class Portfolio:
             dataframes.append(self.asset_allocation)
 
         # Calculate the returns by subtracting the end-of-period allocation from the start-of-period allocation
-        period_returns: pd.DataFrame = dataframes[0] - dataframes[-1]
+        period_returns: pd.DataFrame = (dataframes[0] - dataframes[-1]) / dataframes[0]
 
         # Optionally revert to the original PDF file
         if revert_to_original_file:
@@ -454,24 +461,33 @@ class Portfolio:
         return period_returns.fillna(0, inplace=False)
 
     def calculate_yearly_returns(self):
-        statement_period = _convert_path_to_datetime(self.pdf_scraper.currently_opened_statement)
-        file_paths = _generate_year_over_year_statement_paths(statement_period, 5)
+        # Get the date of the currently opened statement
+        current_statement_date = _convert_path_to_datetime(self.pdf_scraper.currently_opened_statement)
 
+        # Generate file paths for year-over-year statements for the past 5 years
+        year_over_year_file_paths = _generate_year_over_year_statement_paths(current_statement_date, 5)
+
+        # Iterate through the list of file paths to calculate yearly returns
         yearly_returns = []
-        for index in range(len(file_paths) - 1):
-            selected_file_paths: List[str] = file_paths[index: index+2]
+        for index in range(len(year_over_year_file_paths) - 1):
+            # Select two consecutive file paths for the calculation
+            selected_file_paths = year_over_year_file_paths[index: index + 2]
 
+            # Calculate the returns between the selected statements
             yearly_return = self._calculate_returns_over_selected_periods(
                 file_paths=selected_file_paths,
                 revert_to_original_file=False
             )
 
+            # Append the yearly return as a list to the results
             yearly_returns.append(yearly_return["Market Value"].to_list())
 
         self._revert_to_original_pdf_file()
 
-        yearly_returns = np.array(yearly_returns)
-        print(yearly_returns)
+        # Convert the list of yearly returns to a NumPy array
+        yearly_returns: np.array = np.array([sum(returns) for returns in yearly_returns])
+
+        return yearly_returns
 
 
 portfolio = Portfolio(Scripts.PDFScraper.pdf_scraper)

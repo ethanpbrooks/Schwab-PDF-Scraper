@@ -1,107 +1,147 @@
-# Portfolio Analysis Script Documentation
+# Portfolio Class Documentation
 
-## Overview
+The `Portfolio` class represents a financial portfolio and provides methods and properties for analyzing its asset composition and returns over time. This class relies on the `PDFScraper` instance to extract financial data from PDF statements.
 
-This script is designed for analyzing a financial portfolio. It uses a PDF scraper to extract financial data from PDF statements and provides methods to analyze the portfolio's asset composition, returns over time, and more.
+## Constructor
 
-## Table of Contents
+### `Portfolio(pdf_scraper: Scripts.PDFScraper.PDFScraper)`
 
-1. [Imports and File Paths](#imports-and-file-paths)
-2. [Class: `Portfolio`](#class-portfolio)
-   1. [Asset Composition](#asset-composition)
-   2. [Portfolio Returns](#portfolio-returns)
-   3. [Fixed Income ETF Allocation](#fixed-income-etf-allocation)
-   4. [Equity Allocation](#equity-allocation)
-   5. [Options Data](#options-data)
-   6. [Corporate Bonds Allocation](#corporate-bonds-allocation)
-   7. [Mutual Funds Allocation](#mutual-funds-allocation)
-   8. [Money Market Funds Allocation](#money-market-funds-allocation)
-   9. [Treasuries Allocation](#treasuries-allocation)
-   10. [Private Methods](#private-methods)
-   11. [Monthly Returns Calculation](#monthly-returns-calculation)
+- Creates a new `Portfolio` instance.
+- Parameters:
+  - `pdf_scraper` (Scripts.PDFScraper.PDFScraper): An instance of `PDFScraper` used for extracting financial data from PDF statements.
 
-## 1. Imports and File Paths <a name="imports-and-file-paths"></a>
+## Properties
 
-- Imports necessary libraries such as pandas, numpy, datetime, and more.
-- Defines file paths for output files and obtains fixed income ETF tickers.
+### `asset_allocation`
 
-## 2. Class: `Portfolio` <a name="class-portfolio"></a>
+- Retrieves the calculated asset composition of the portfolio.
+- Returns: A pandas DataFrame containing the asset composition of the portfolio, including asset type, total market value, and asset weight.
 
-Represents a portfolio of financial assets and provides methods to analyze its composition and returns over time.
+### `fixed_income_etfs`
 
-### 2.1. Asset Composition <a name="asset-composition"></a>
+- Retrieves a DataFrame containing the allocation of fixed income ETFs in the portfolio.
+- Returns: A pandas DataFrame representing the allocation of fixed income ETFs.
 
-- **Description**: Retrieves the calculated asset composition of the portfolio.
-- **Properties**:
-  - `asset_allocation`: A pandas DataFrame containing the asset composition of the portfolio.
-- **Methods**:
-  - `_calculate_asset_allocation()`: Private method to calculate asset allocation.
+### `equities`
 
-### 2.2. Portfolio Returns <a name="portfolio-returns"></a>
+- Retrieves a DataFrame containing the allocation of equities in the portfolio.
+- Returns: A pandas DataFrame representing the allocation of equities.
 
-- **Description**: Calculates and returns the portfolio returns over time.
-- **Properties**:
-  - `portfolio_returns`: A pandas DataFrame containing portfolio returns over time.
-- **Methods**:
-  - `_calculate_portfolio_returns_over_time()`: Private method to calculate returns over time.
+### `options`
 
-### 2.3. Fixed Income ETF Allocation <a name="fixed-income-etf-allocation"></a>
+- Retrieves a DataFrame containing options data from the PDF scraper.
+- Returns: A pandas DataFrame containing options data.
 
-- **Description**: Retrieves a DataFrame containing the allocation of fixed income ETFs in the portfolio.
-- **Properties**:
-  - `fixed_income_etf`: A pandas DataFrame representing the allocation of fixed income ETFs.
+### `exchange_traded_funds`
 
-### 2.4. Equity Allocation <a name="equity-allocation"></a>
+- Retrieves a DataFrame containing the allocation of exchange-traded funds (ETFs) in the portfolio.
+- Returns: A pandas DataFrame representing the allocation of ETFs.
 
-- **Description**: Retrieves a DataFrame containing the allocation of equities in the portfolio.
-- **Properties**:
-  - `equities`: A pandas DataFrame representing the allocation of equities.
+### `corporate_bonds`
 
-### 2.5. Options Data <a name="options-data"></a>
+- Retrieves a DataFrame containing investment details for Corporate Bonds.
+- Returns: A pandas DataFrame containing investment details for Corporate Bonds.
 
-- **Description**: Retrieves a DataFrame containing options data from the PDF scraper.
-- **Properties**:
-  - `options`: A DataFrame containing options data.
+### `bond_partial_calls`
 
-### 2.6. Corporate Bonds Allocation <a name="corporate-bonds-allocation"></a>
+- Retrieves a DataFrame containing investment details for Partial Calls Bonds.
+- Returns: A pandas DataFrame containing investment details for Partial Calls Bonds.
 
-- **Description**: Retrieves a DataFrame containing investment details for Corporate Bonds.
-- **Properties**:
-  - `corporate_bonds`: A pandas DataFrame containing investment details for Corporate Bonds.
+### `bond_funds`
 
-### 2.7. Mutual Funds Allocation <a name="mutual-funds-allocation"></a>
+- Retrieves a DataFrame containing investment details for Bond Funds.
+- Returns: A pandas DataFrame containing investment details for Bond Funds.
 
-- **Description**: Retrieves a combined DataFrame of bond funds and equity funds from the PDFScraper instance.
-- **Properties**:
-  - `mutual_funds`: A DataFrame containing combined bond fund and equity fund data.
+### `equity_funds`
 
-### 2.8. Money Market Funds Allocation <a name="money-market-funds-allocation"></a>
+- Retrieves a DataFrame containing investment details for Equity Funds.
+- Returns: A pandas DataFrame containing investment details for Equity Funds.
 
-- **Description**: Retrieves a DataFrame containing investment details for Money Market Funds.
-- **Properties**:
-  - `money_market_funds`: A pandas DataFrame containing investment details for Money Market Funds.
+### `money_market_funds`
 
-### 2.9. Treasuries Allocation <a name="treasuries-allocation"></a>
+- Retrieves a DataFrame containing investment details for Money Market Funds.
+- Returns: A pandas DataFrame containing investment details for Money Market Funds, including an added "Market Value" column.
 
-- **Description**: Retrieves a DataFrame containing investment details for cash equivalents (U.S. Treasuries).
-- **Properties**:
-  - `treasuries`: A pandas DataFrame containing investment details for cash equivalents.
+### `treasuries`
 
-### 2.10. Private Methods <a name="private-methods"></a>
+- Retrieves a DataFrame containing investment details for U.S. Treasuries (cash equivalents).
+- Returns: A pandas DataFrame containing investment details for U.S. Treasuries.
 
-- `_categorize_equities_and_exchange_traded_funds()`: Private method to combine and calculate market value for equities and ETFs.
-- `_calculate_asset_allocation()`: Private method to calculate asset allocation.
-- `_revert_to_original_pdf_file()`: Private method to revert the PDF file back to its original state.
-- `_calculate_portfolio_returns_over_time()`: Private method to calculate returns over time.
-- `calculate_monthly_returns()`: Method to calculate monthly returns.
+### `equity_collection`
 
-### 2.11. Monthly Returns Calculation <a name="monthly-returns-calculation"></a>
+- Retrieves a collection of DataFrames containing equity-related asset allocations.
+- Returns: A dictionary with asset type names as keys and corresponding DataFrames as values.
 
-- **Description**: Calculates monthly returns for the portfolio based on statement data.
+### `cash_equivalent_collection`
 
-## 3. Usage Example <a name="usage-example"></a>
+- Retrieves a collection of dataframes for cash equivalent investments.
+- Returns: A dictionary with keys representing cash equivalent investment types and values as dataframes containing investment details.
 
-- Instantiates the `Portfolio` class and demonstrates how to use it for portfolio analysis.
+### `fixed_income_collection`
+
+- Retrieves a collection of DataFrames containing fixed income-related asset allocations.
+- Returns: A dictionary with asset type names as keys and corresponding DataFrames as values.
+
+## Methods
+
+### `_categorize_asset_types_from_dataframes(asset: str)`
+
+- Categorizes and processes asset dataframes based on the asset type.
+- Parameters:
+  - `asset` (str): The asset type to categorize.
+- Returns: A pandas DataFrame containing the categorized asset data.
+
+### `_categorize_equities_and_exchange_traded_funds()`
+
+- Combines and calculates market value for equities and exchange-traded funds (ETFs).
+- Returns: A pandas DataFrame representing the combined allocation of equities and ETFs in the portfolio.
+
+### `_revert_to_original_pdf_file()`
+
+- Reverts the PDF file back to the original file.
+- This method swaps the currently loaded PDF file with the original PDF file to ensure that the PDF file is in its original state.
+- Returns: None
+
+### `_validate_calculated_asset_allocation(calculated_allocation: pd.DataFrame, file_name: str)`
+
+- Validates the calculated asset allocation against the scraped asset allocation.
+- Parameters:
+  - `calculated_allocation` (pd.DataFrame): The calculated asset allocation DataFrame.
+  - `file_name` (str): The name of the file being validated.
+- Raises:
+  - `ValueError` if the calculated asset allocation total does not match the scraped total.
+
+### `_calculate_asset_allocation()`
+
+- Calculates the allocation of assets in the portfolio.
+- Returns: A pandas DataFrame containing the asset allocation.
+
+### `calculate_returns_over_time()`
+
+- Calculates portfolio returns over selected time periods.
+- Returns: A DataFrame containing returns over the selected time periods, expressed as percentages.
+
+### `_calculate_returns_over_selected_periods(file_paths: List[str], revert_to_original_file: bool = True)`
+
+- Calculates portfolio returns over selected time periods.
+- Parameters:
+  - `file_paths` (List[str]): List of file paths to statements for each time period.
+  - `revert_to_original_file` (bool, optional): Whether to revert to the original PDF file after calculation. Defaults to True.
+- Returns: A DataFrame containing returns over the selected time periods, expressed as percentages.
+
+### `calculate_yearly_returns()`
+
+- Calculates yearly returns for the portfolio.
+- Returns: A NumPy array containing yearly returns.
+
+## Example Usage
 
 ```python
+# Create a Portfolio instance
 portfolio = Portfolio(Scripts.PDFScraper.pdf_scraper)
+
+# Access properties and methods
+asset_allocation = portfolio.asset_allocation
+equities = portfolio.equities
+returns_over_time = portfolio.calculate_returns_over_time()
+yearly_returns = portfolio.calculate_yearly_returns()

@@ -2,7 +2,7 @@ from Scripts.PorfolioAnalysis import portfolio
 
 
 def main():
-    foo = portfolio.calculate_yearly_returns()
+    foo = portfolio.__version__
     print(foo)
 
 
