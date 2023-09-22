@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from scipy.stats import gmean
 import MainScripts.PDFScraper
 import MainScripts.FileManagement as FileManagement
 

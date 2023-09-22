@@ -10,6 +10,7 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
    - [Clone the Repository](#clone-the-repository)
    - [Change Directory](#change-directory)
    - [Install Required Packages](#install-required-packages)
+- [Configuration File](#configuration)
 - [Usage](#usage)
    - [Extracting Investment Data](#extracting-investment-data)
       - [Equity Investment Data](#equity-investment-data)
@@ -55,6 +56,41 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
    ```pycon
    pip install -r requirements.txt
    ```
+
+## Configuration
+
+Before you can use the PDFScraper for processing Schwab portfolio statements, you need to create a `config.json` file in the root directory of your project with the following structure:
+
+Please note that you will need to fill out the data in this config.json file based on your specific Schwab portfolio statements and asset configurations. Replace the empty strings with the actual file names, settings, line items to remove, asset type mappings, and symbols corresponding to each asset type as needed for your use case.
+
+```json
+{
+  "Schwab Portfolio Statements": {
+    "Most Recent": "",
+    "One Month": "",
+    "Year-to-Date": "",
+    "One Year": "",
+    "Three Year": "",
+    "Five Year": ""
+  },
+
+  "Fixed Income ETFs": [
+    ""
+  ],
+
+  "Line Items to Remove": [
+    ""
+  ],
+
+  "Asset Types as Shown per Section": {
+    "": ""
+  },
+
+  "Symbols Corresponding to Each Asset Type": {
+    "": ""
+  }
+}
+```
 
 ### Extracting Investment Data
 
