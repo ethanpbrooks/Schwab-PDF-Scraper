@@ -1,47 +1,109 @@
-# PDF Statement Data Extractor and Analyzer
+# PDF Financial Data Scraper
 
-This Python script is designed to extract and analyze financial data from PDF statements, specifically tailored for Schwab statements. It provides functionality to read PDF files, extract text content, clean and process data, and convert it into Pandas DataFrames for further analysis.
+The PDF Financial Data Scraper is a Python tool designed to extract and process investment data from PDF documents, particularly tailored for Schwab statements. It allows you to extract data related to various asset types, such as equities, fixed income, options, and more, and convert it into structured Pandas DataFrames for further analysis.
+
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+   - [Clone the Repository](#clone-the-repository)
+   - [Change Directory](#change-directory)
+   - [Install Required Packages](#install-required-packages)
+- [Usage](#usage)
+   - [Extracting Investment Data](#extracting-investment-data)
+      - [Equity Investment Data](#equity-investment-data)
+      - [Asset Composition](#asset-composition)
+   - [Portfolio Analysis Tool](#portfolio-analysis-tool)
+      - [Portfolio Class](#portfolio-class)
+      - [Custom Analysis Class](#custom-analysis-class)
+   - [PDF Scraper Options](#pdf-scraper-options)
+- [Documentation](#documentation)
+- [Examples](#examples)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
+
 
 ## Features
 
-- Extracts text content from PDF files.
-- Processes financial data from Schwab statements, including asset composition, equities, fixed income, options, and more.
-- Converts extracted data into Pandas DataFrames.
-- Handles specific financial data cleaning, such as removing commas and converting values to numeric types.
-- Supports swapping PDF content with a new file for analysis.
+- Extract investment data from PDF documents.
+- Process data related to different asset types, including equities, fixed income, options, and more.
+- Convert extracted data into Pandas DataFrames for easy analysis.
+- Retrieve asset composition information.
+- Handle various financial instruments present in Schwab statements.
 
-## Requirements
+## Installation
 
-- Python 3.x
-- Libraries: `fitz`, `os`, `pandas`, `logging`, and custom module `FileManagement` (provided separately).
+1. Clone the repository to your local machine:
 
-## Usage
+   ```pycon
+   git clone https://github.com/yourusername/pdf-financial-scraper.git
+   ```
 
-1. Clone the repository to your local machine.
-2. Install the required Python libraries if you haven't already:
+2. Change the directory to the project folder
 
-   ```bash
-   pip install PyMuPDF pandas
-3. Replace ./config.json with your configuration file if needed.
-4. Place your Schwab PDF statements in the ./Statements directory.
-5. Run the script:
+   ```pycon
+   cd pdf-financial-scraper
+   ```
+   
+3. Install the required Python packages
 
-   ```bash
-   python your_script.py
-6. The script will extract and process data from the most recent Schwab statement by default. You can swap the PDF content with a new file using the swap_statement method.
+   ```pycon
+   pip install -r requirements.txt
+   ```
 
-### Configuration
-The script relies on a config.json file for configuration settings.
-You can customize the list of statements to analyze and define line items to remove in the configuration file.
+### Extracting Investment Data
 
-### License
-This project is licensed under the MIT License - see the LICENSE file for details.
+To access and analyze your investment data, you can utilize the instance of the **PDFScraper** class named `pdf_scraper`. This instance provides various properties that allow you to extract different types of investment data.
 
-### Acknowledgements
-- This script was created for educational and personal use.
-- The custom FileManagement module may include additional functions and configurations not covered in this README.
+First, make sure you have imported the `pdf_scraper` instance into your script as shown below:
 
-### Disclaimer
-- This script is not intended for use in critical financial or investment decisions.
-- Always verify the accuracy and reliability of the extracted data.
+```pycon
+from MainScripts.PDFScraper import pdf_scraper
+```
+Now, you can easily retrieve specific investment data as follows:
 
+Equity Investment Data
+To obtain equity investment data, including information about stocks and shares, you can use the equity_dataframe property:
+
+```pycon
+# Retrieve Equity investment data as a DataFrame
+equity_data = pdf_scraper.equity_dataframe
+```
+
+The equity_dataframe property returns a pandas DataFrame containing details about your equity investments, such as symbol, name, quantity, and price.
+
+Asset Composition
+The asset_composition property provides an overview of your portfolio's asset composition. It extracts data related to different asset types, such as equities, fixed income, ETFs, and more:
+
+```pycon
+# Retrieve asset composition data as a DataFrame
+asset_composition = pdf_scraper.asset_composition
+```
+
+The resulting DataFrame includes information about the type of assets in your portfolio and their respective market values.
+
+With these properties, you can effortlessly access and work with your investment data to perform various analyses and make informed financial decisions.
+
+## Portfolio Analysis Tool
+
+This project includes a complimentary module called **PortfolioAnalysis**, which provides a powerful toolset for analyzing and managing your investment portfolio. The core of this module is the **Portfolio** class, designed to help you perform various calculations and analysis on your investment data.
+
+### Portfolio Class
+
+The **Portfolio** class offers a wide range of functionalities for portfolio analysis, including:
+
+- Calculation of portfolio performance metrics such as returns, volatility, and risk measures.
+- Diversification analysis to assess asset allocation.
+- Optimization techniques to find the optimal asset mix for your investment goals.
+- Visualization tools for generating informative charts and reports.
+
+### Custom Analysis Class
+
+While the **Portfolio** class in **PortfolioAnalysis** covers a broad spectrum of portfolio analysis needs, we understand that you may have specific requirements or custom analysis methods. That's why we offer you the flexibility to create your own analysis class and integrate it seamlessly with the project. You can extend and customize the analysis functionality to suit your unique investment strategies and objectives.
+
+### PDF Scraper Options
+
+In addition to the portfolio analysis capabilities, this project provides options for PDF scraping to extract investment data from your financial statements. The **PDFScraper** class is responsible for extracting and processing data from PDF documents. While the default implementation is included, you also have the freedom to change the PDF scraper to suit your needs.
+
+Whether you choose to use the built-in PDF scraper or develop your custom one, this project is designed to give you the flexibility to tailor your investment analysis and data extraction processes to your preferences.

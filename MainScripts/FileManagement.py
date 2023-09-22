@@ -3,14 +3,46 @@ import json
 import re
 import logging
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-# File Paths
-_config_file_path = "./config.json"
-_statements_directory_path = "./Statements"
 
-with open(_config_file_path, "r") as config_file:
-    config = json.load(config_file)
+def _configuration_file(file_path: str) -> dict:
+    with open(file_path, "r") as config_file:
+        return json.load(config_file)
+
+
+def _standard_selection_of_schwab_statements() -> Dict[str, str]:
+    ...
+
+
+def _lookup_statements_directory():
+    ...
+
+
+def _list_of_asset_types():
+    # Asset types
+    equities = "Equities"
+    treasuries = "U.S. Treasuries"
+    corporate_bonds = "Corporate Bonds"
+    exchange_traded_funds = "Exchange Traded Funds"
+    bond_funds = "Bond Funds"
+    equity_funds = "Equity Funds"
+    money_market_funds = "Fund Name"  # Money Market Funds (Non-Sweep)
+    other_assets = "Other Assets"
+    other_fixed_income = "Other Fixed Income"
+    options = "Options"
+
+    all_asset_types = [
+        equities, treasuries, corporate_bonds, exchange_traded_funds, bond_funds, equity_funds, money_market_funds,
+        other_assets, options, other_fixed_income
+    ]
+
+    return all_asset_types
+
+
+config = _configuration_file("MainScripts/config.json")
+statement_directory_path = "1. Schwab Statements"
+file_names = os.listdir(statement_directory_path)
 
 
 # Configure logging and Create a logger instance for the current module
@@ -21,37 +53,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Get a list of statement filenames in the folder
-_statement_folder_path = "Statements"
-_statement_filepaths = os.listdir("Statements")
-file_names = [
-    filename for filename in _statement_filepaths if os.path.isfile(os.path.join("Statements", filename))
-]
 
-# Asset types
-equities = "Equities"
-treasuries = "U.S. Treasuries"
-corporate_bonds = "Corporate Bonds"
-exchange_traded_funds = "Exchange Traded Funds"
-bond_funds = "Bond Funds"
-equity_funds = "Equity Funds"
-money_market_funds = "Fund Name"  # Money Market Funds (Non-Sweep)
-other_assets = "Other Assets"
-other_fixed_income = "Other Fixed Income"
-options = "Options"
 
-all_asset_types = [
-    equities, treasuries, corporate_bonds, exchange_traded_funds, bond_funds, equity_funds, money_market_funds,
-    other_assets, options, other_fixed_income
-]
 
 asset_types_as_shown_per_section: Dict[str, str] = config["Asset Types as Shown per Section"]
 
 
 def extract_schwab_statements() -> Dict[str, str]:
     """
-    Extract the "Schwab Portfolio Statements" dictionary from the given JSON configuration file.
-    :return: The "Schwab Portfolio Statements" dictionary from the configuration file.
+    Extract the "Schwab Portfolio 1. Schwab Statements" dictionary from the given JSON configuration file.
+    :return: The "Schwab Portfolio 1. Schwab Statements" dictionary from the configuration file.
     """
     logging.info("Extracting 'Schwab Portfolio Statements' dictionary from config.json")
     statements = config.get('Schwab Portfolio Statements', {})
@@ -131,7 +142,7 @@ def validated_file_path(base_file_name: str) -> str:
     :rtype: str
     :raises ValueError: If the specified PDF file does not exist in the statement folder.
     """
-    file_path = os.path.join(_statement_folder_path, f"{base_file_name}.pdf")
+    file_path = os.path.join(statement_directory_path, f"{base_file_name}.pdf")
     file_was_found = os.path.isfile(file_path)
 
     if file_was_found:

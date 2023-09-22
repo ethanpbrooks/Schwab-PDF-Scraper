@@ -1,16 +1,14 @@
 import pandas as pd
 import numpy as np
 from scipy.stats import gmean
-import Scripts.PDFScraper
-import Scripts.FileManagement as FileManagement
+import MainScripts.PDFScraper
+import MainScripts.FileManagement as FileManagement
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 from typing import Dict, List
 from dataclasses import dataclass
-
-config_file_path: str = Scripts.PDFScraper.config_file_path
 
 
 # File paths
@@ -56,10 +54,6 @@ def _generate_year_over_year_statement_paths(base_date: datetime, num_years: int
     return statement_paths
 
 
-def geometric_average():
-    ...
-
-
 @dataclass
 class Portfolio:
     """
@@ -72,7 +66,7 @@ class Portfolio:
     :type pdf_scraper: Scripts.PDFScraper.PDFScraper
     """
 
-    pdf_scraper: Scripts.PDFScraper.PDFScraper
+    pdf_scraper: MainScripts.PDFScraper.PDFScraper
 
     @property
     def __version__(self) -> str:
@@ -285,14 +279,18 @@ class Portfolio:
 
         # Apply conditions and computations based on asset type
         if asset in ["Fixed Income ETFs", "Exchange Traded Funds"]:
+            # Older versions report ETFs as "Other Assets"
+            dataframe = pd.concat([dataframe, self.pdf_scraper.other_assets_dataframe], ignore_index=True)
+
             is_fixed_income_eft = asset == "Fixed Income ETFs"
             fixed_income_etf_symbols: List[str] = self.pdf_scraper.symbols_of_fixed_income_etfs
-            condition = dataframe["Symbol"].isin(
+
+            user_selected_type_of_fixed_income = dataframe["Symbol"].isin(
                 fixed_income_etf_symbols) if is_fixed_income_eft else ~dataframe["Symbol"].isin(
                 fixed_income_etf_symbols)
 
             # Filter the dataframe based on the condition and create a copy
-            dataframe = dataframe.loc[condition].copy()
+            dataframe = dataframe.loc[user_selected_type_of_fixed_income].copy()
 
         # Apply additional calculations if the asset is not fixed income
         if not _asset_is_fixed_income_as_stated_per_schwab(asset) and asset != "Options":
@@ -310,7 +308,7 @@ class Portfolio:
         :return: A pandas DataFrame representing the combined allocation of equities and ETFs in the portfolio.
         """
         # Extract quantity and price column names for equities
-        quantity, price = Scripts.PDFScraper.equity_numeric
+        quantity, price = MainScripts.PDFScraper.equity_numeric
 
         # Combine both equity and ETF dataframes from the PDFScraper instance
         equities_dataframe = self.pdf_scraper.equity_dataframe
@@ -490,4 +488,4 @@ class Portfolio:
         return yearly_returns
 
 
-portfolio = Portfolio(Scripts.PDFScraper.pdf_scraper)
+portfolio = Portfolio(MainScripts.PDFScraper.pdf_scraper)

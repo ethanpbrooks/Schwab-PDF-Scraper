@@ -2,16 +2,13 @@ import fitz
 import os
 import pandas as pd
 import logging
-import Scripts.FileManagement as FileManagement
+import MainScripts.FileManagement as FileManagement
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
-# File Paths
-config_file_path = "./config.json"
-statements_directory_path = "./Statements"
-_schwab_statement_paths: Dict[str, str] = FileManagement.extract_schwab_statements()
 
+_schwab_statement_paths: Dict[str, str] = FileManagement.extract_schwab_statements()
 _months = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -42,7 +39,7 @@ def _read_pdf(pdf_name: str) -> Dict[int, list]:
     """
     logging.info(f"Extracting and splitting text content from PDF: {pdf_name}")
 
-    pdf_path = os.path.join(statements_directory_path, pdf_name)
+    pdf_path = os.path.join(FileManagement.statement_directory_path, pdf_name)
 
     # Check if the PDF file exists
     if not os.path.isfile(pdf_path):
@@ -271,7 +268,7 @@ class PDFScraper:
         :return: A DataFrame containing options data.
         """
         return self._convert_generator_of_asset_data_to_dataframe(
-            FileManagement.options, option_columns, option_numeric
+            "Options", option_columns, option_numeric
         )
 
 

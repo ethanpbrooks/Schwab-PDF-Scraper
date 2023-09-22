@@ -1,9 +1,9 @@
-from Scripts.PorfolioAnalysis import portfolio
+from MainScripts.PorfolioAnalysis import portfolio
 
 
 def main():
-    foo = portfolio.__version__
-    print(foo)
+    equities = portfolio.equities
+    print(equities)
 
 
 if __name__ == "__main__":
