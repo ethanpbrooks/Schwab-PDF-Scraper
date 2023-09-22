@@ -166,7 +166,7 @@ The PDF Financial Data Scraper project was born out of my desire to streamline t
 
 If you have any questions, suggestions, or would like to collaborate on this project, please feel free to reach out to me:
 
-- Email: [ethan.brooks@example.com](mailto:ethan.brooks@example.com)
-- LinkedIn: [Ethan Brooks](https://www.linkedin.com/in/ethan-brooks)
+- Email: [ethan.brooks@example.com](mailto:ethan.brooks@mymail.barry.edu)
+- LinkedIn: [Ethan Brooks](https://www.linkedin.com/in/ethan-brooks-11706a14a/)
 
 Thank you for using the PDF Financial Data Scraper, and I hope it proves to be a valuable tool for your investment analysis needs.
