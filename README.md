@@ -4,6 +4,7 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 
 ## Table of Contents
 
+- [PDF Financial Data Scraper](#pdf-financial-data-scraper)
 - [Features](#features)
 - [Installation](#installation)
    - [Clone the Repository](#clone-the-repository)
@@ -22,7 +23,10 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
-
+- [About the Author](#about-the-author)
+   - [Background](#background)
+   - [Project Goals](#project-goals)
+   - [Contact Information](#contact-information)
 
 ## Features
 
@@ -63,7 +67,7 @@ from MainScripts.PDFScraper import pdf_scraper
 ```
 Now, you can easily retrieve specific investment data as follows:
 
-Equity Investment Data
+#### Equity Investment Data
 To obtain equity investment data, including information about stocks and shares, you can use the equity_dataframe property:
 
 ```pycon
@@ -73,7 +77,7 @@ equity_data = pdf_scraper.equity_dataframe
 
 The equity_dataframe property returns a pandas DataFrame containing details about your equity investments, such as symbol, name, quantity, and price.
 
-Asset Composition
+#### Asset Composition
 The asset_composition property provides an overview of your portfolio's asset composition. It extracts data related to different asset types, such as equities, fixed income, ETFs, and more:
 
 ```pycon
@@ -107,3 +111,26 @@ While the **Portfolio** class in **PortfolioAnalysis** covers a broad spectrum o
 In addition to the portfolio analysis capabilities, this project provides options for PDF scraping to extract investment data from your financial statements. The **PDFScraper** class is responsible for extracting and processing data from PDF documents. While the default implementation is included, you also have the freedom to change the PDF scraper to suit your needs.
 
 Whether you choose to use the built-in PDF scraper or develop your custom one, this project is designed to give you the flexibility to tailor your investment analysis and data extraction processes to your preferences.
+
+## About the Author
+
+I'm Ethan Brooks, and I currently serve as the Co-Managing Director of Barry University's Student Managed Investment Fund (SMIF). As a computer science major with a specialization in data analysis, I've combined my passion for technology with my interest in finance to develop and maintain the PDF Financial Data Scraper project.
+
+### Background
+
+- **Location:** Miami, Florida
+- **Role:** Co-Managing Director at Barry University's SMIF
+- **Experience:** I manage over $1 million as part of my responsibilities at Barry University's SMIF. My expertise in computer science and data analysis has allowed me to leverage technology to enhance our investment strategies and decision-making processes.
+
+### Project Goals
+
+The PDF Financial Data Scraper project was born out of my desire to streamline the process of extracting and analyzing investment data from PDF documents, particularly tailored for Schwab statements. I believe that technology can play a crucial role in making data-driven financial decisions, and this project is a testament to that vision.
+
+### Contact Information
+
+If you have any questions, suggestions, or would like to collaborate on this project, please feel free to reach out to me:
+
+- Email: [ethan.brooks@example.com](mailto:ethan.brooks@example.com)
+- LinkedIn: [Ethan Brooks](https://www.linkedin.com/in/ethan-brooks)
+
+Thank you for using the PDF Financial Data Scraper, and I hope it proves to be a valuable tool for your investment analysis needs.
