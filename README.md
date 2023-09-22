@@ -60,8 +60,8 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 ## Configuration
 
 Please note that you will need to fill out the data in this config.json file based on your specific Schwab portfolio statements and asset configurations. Replace the empty strings with the actual file names, settings, line items to remove, asset type mappings, and symbols corresponding to each asset type as needed for your use case.
-Before you can use the PDFScraper for processing Schwab portfolio statements, you need to create a `config.json` file in the MainScripts directory of your project with the following structure:
 
+Before you can use the PDFScraper for processing Schwab portfolio statements, you need to create a `config.json` file in the MainScripts directory of your project with the following structure:
 
 ```json
 {
