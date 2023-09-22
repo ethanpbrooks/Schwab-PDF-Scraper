@@ -99,6 +99,9 @@ def validate_statement_files() -> bool:
 
     # Iterate through each file name and validate
     for file_name in file_names:
+        if file_name == "empty_file.txt":
+            continue
+
         try:
             match = re.match(pattern, file_name.lower())
             if not match:
