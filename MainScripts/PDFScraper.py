@@ -6,6 +6,7 @@ import MainScripts.FileManagement as FileManagement
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
+from abc import ABC, abstractmethod
 
 
 _schwab_statement_paths: Dict[str, str] = FileManagement.extract_schwab_statements()
@@ -193,7 +194,154 @@ def _extract_asset_data_from_text_lines(text_lines: List[str], asset: str) -> Li
 
 
 @dataclass
-class PDFScraper:
+class AbstractPDFScraper(ABC):
+    """
+    An abstract class for extracting and processing investment data from PDF documents.
+
+    This abstract class provides the structure for extracting investment data from PDF documents,
+    processing the data, and converting it into pandas DataFrames for further analysis.
+    It supports extracting data related to different asset types, such as equities,
+    fixed income, exchange-traded funds (ETFs), and more.
+
+    :param _pdf: A dictionary containing extracted text content from each page of a PDF document.
+    """
+
+    _pdf: Dict[int, list]
+
+    @property
+    @abstractmethod
+    def asset_composition(self) -> pd.DataFrame:
+        """
+        Get the DataFrame containing asset composition information.
+
+        :return: A DataFrame containing asset composition data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def options_dataframe(self) -> pd.DataFrame:
+        """
+        Retrieve and convert options data from the PDF statement into a DataFrame.
+
+        This property extracts options data from the PDF statement, converts it into a DataFrame, and returns it.
+        The resulting DataFrame contains information about options, including columns like symbol,
+        quantity, market value, etc.
+
+        :return: A DataFrame containing options data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def equity_dataframe(self) -> pd.DataFrame:
+        """
+        Get the DataFrame containing equity investment information.
+
+        :return: A DataFrame containing equity investment data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def bond_funds_dataframe(self) -> pd.DataFrame:
+        """
+        Get the DataFrame containing bond fund investment information.
+
+        :return: A DataFrame containing bond fund investment data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def equity_funds_dataframe(self) -> pd.DataFrame:
+        """
+        Get the DataFrame containing equity fund investment information.
+
+        :return: A DataFrame containing equity fund investment data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def exchange_traded_funds_dataframe(self) -> pd.DataFrame:
+        """
+        Get the DataFrame containing Exchange Traded Fund (ETF) investment information.
+
+        :return: A DataFrame containing ETF investment data.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def other_assets_dataframe(self) -> pd.DataFrame:
+        """
+        Get a DataFrame containing information about other assets (e.g., ETFs) from the statements.
+
+        :return: A pandas DataFrame containing information about other assets.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def money_market_fund_dataframe(self) -> pd.DataFrame:
+        """
+        Property to retrieve a DataFrame containing investment details for Money Market Funds.
+
+        :return: A pandas DataFrame containing investment details for Money Market Funds.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def corporate_bonds_dataframe(self) -> pd.DataFrame:
+        """
+        Property to retrieve a DataFrame containing investment details for Corporate Bonds.
+
+        :return: A pandas DataFrame containing investment details for Corporate Bonds.
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def bond_partial_calls(self) -> pd.DataFrame:
+        """
+        Retrieve a DataFrame containing information about bond partial calls.
+
+        This property method extracts and processes data related to bond partial calls
+        from the PDFScraper instance. It converts the extracted data into a pandas DataFrame
+        and returns it.
+
+        :return: A pandas DataFrame containing information about bond partial calls.
+        :rtype: pd.DataFrame
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def treasuries_dataframe(self) -> pd.DataFrame:
+        """
+        Property to retrieve a DataFrame containing investment details for U.S. Treasuries.
+
+        :return: A pandas DataFrame containing investment details for U.S. Treasuries.
+        """
+        pass
+
+    @abstractmethod
+    def swap_statement(self, new_file_name: str) -> None:
+        """
+        Swap the PDF content with a new PDF file.
+
+        This method replaces the current PDF content with the content of a new PDF file.
+        It reads and extracts the text content from each page of the new PDF and updates the internal PDF dictionary.
+
+        :param new_file_name: The name of the new PDF file.
+        """
+        pass
+
+
+@dataclass
+class PDFScraper(AbstractPDFScraper):
     """
     A class for extracting and processing investment data from PDF documents.
 
