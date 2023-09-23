@@ -50,9 +50,7 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 
 ## Configuration
 
-Please note that you will need to fill out the data in this config.json file based on your specific Schwab portfolio statements and asset configurations. Replace the empty strings with the actual file names, settings, line items to remove, asset type mappings, and symbols corresponding to each asset type as needed for your use case.
-
-Before you can use the PDFScraper for processing Schwab portfolio statements, you need to create a `config.json` file in the MainScripts directory of your project with the following structure:
+To use the PDF Financial Data Scraper, you'll need to configure the `config.json` file with your specific data. Please note that while we provide a template for these sections, we cannot display the actual content due to confidentiality or privacy reasons.
 
 ```json
 {
@@ -82,6 +80,36 @@ Before you can use the PDFScraper for processing Schwab portfolio statements, yo
   }
 }
 ```
+
+#### Asset Types as Shown per Section
+
+The "Asset Types as Shown per Section" section defines how different asset types are labeled in your statements. It should follow this format:
+
+```json
+{
+  "Asset Types as Shown per Section": {
+    "Equities": "Equities",
+    "Exchange Traded Funds": "Exchange Traded Funds",
+    "...": "..."
+  }
+}
+```
+
+### Symbols Corresponding to Each Asset Type
+
+The "Symbols Corresponding to Each Asset Type" section specifies the symbols or identifiers associated with each asset type in your statements. It should follow this format:
+
+```json
+{
+  "Symbols Corresponding to Each Asset Type": {
+    "Equities": "SYMBOL: ",
+    "Exchange Traded Funds": "SYMBOL: ",
+    "...": "..."
+  }
+}
+```
+
+Please ensure that your actual configuration follows these formats while replacing the values with your specific data.
 
 ## Usage
 
