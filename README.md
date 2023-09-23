@@ -95,7 +95,7 @@ The "Asset Types as Shown per Section" section defines how different asset types
 }
 ```
 
-### Symbols Corresponding to Each Asset Type
+#### Symbols Corresponding to Each Asset Type
 
 The "Symbols Corresponding to Each Asset Type" section specifies the symbols or identifiers associated with each asset type in your statements. It should follow this format:
 
