@@ -73,7 +73,7 @@ class Portfolio:
         Get the version of the Portfolio class.
         :returns A string representing the version of the Portfolio class.
         """
-        return "1.0.4"
+        return "0.9.5"
 
     @property
     def asset_allocation(self) -> pd.DataFrame:

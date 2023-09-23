@@ -7,9 +7,6 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 - [PDF Financial Data Scraper](#pdf-financial-data-scraper)
 - [Features](#features)
 - [Installation](#installation)
-   - [Clone the Repository](#clone-the-repository)
-   - [Change Directory](#change-directory)
-   - [Install Required Packages](#install-required-packages)
 - [Configuration File](#configuration)
 - [Usage](#usage)
    - [Extracting Investment Data](#extracting-investment-data)
@@ -19,14 +16,8 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
       - [Portfolio Class](#portfolio-class)
       - [Custom Analysis Class](#custom-analysis-class)
    - [PDF Scraper Options](#pdf-scraper-options)
-- [Documentation](#documentation)
-- [Examples](#examples)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
 - [About the Author](#about-the-author)
    - [Background](#background)
-   - [Project Goals](#project-goals)
    - [Contact Information](#contact-information)
 
 ## Features
@@ -42,7 +33,7 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 1. Clone the repository to your local machine:
 
    ```pycon
-   git clone https://github.com/yourusername/pdf-financial-scraper.git
+   git clone https://github.com/ethanpbrooks/pdf-financial-scraper.git
    ```
 
 2. Change the directory to the project folder
@@ -91,6 +82,8 @@ Before you can use the PDFScraper for processing Schwab portfolio statements, yo
   }
 }
 ```
+
+## Usage
 
 ### Extracting Investment Data
 
@@ -157,13 +150,13 @@ I'm Ethan Brooks, and I currently serve as the Co-Managing Director of Barry Uni
 - **Location:** Miami, Florida
 - **Role:** Co-Managing Director at Barry University's SMIF
 
-### Project Goals
+### Disclaimer
 
-The PDF Financial Data Scraper project was born out of my desire to streamline the process of extracting and analyzing investment data from PDF documents, particularly tailored for Schwab statements. I believe that technology can play a crucial role in making data-driven financial decisions, and this project is a testament to that vision.
+Please note that I am a student, and while I have designed and implemented this tool to the best of my abilities, it is essential to exercise caution and verify the extracted data for accuracy. Investment decisions should be made based on thorough analysis and consultation with financial professionals.
 
 ### Contact Information
 
-If you have any questions, suggestions, or would like to collaborate on this project, please feel free to reach out to me:
+If you have any questions, or suggestions, please feel free to reach out to me:
 
 - Email: [ethan.brooks@mymail.barry.edu](mailto:ethan.brooks@mymail.barry.edu)
 - LinkedIn: [Ethan Brooks](https://www.linkedin.com/in/ethan-brooks-11706a14a/)
