@@ -377,6 +377,11 @@ class Portfolio:
             columns={0: "Market Value"}
         )
 
+        # Calculate the Weights
+        allocation_column: pd.Series = asset_allocation_df["Market Value"]
+        portfolio_total_value = allocation_column.sum()
+        asset_allocation_df["Weight"] = allocation_column / portfolio_total_value
+
         # Validate the calculated asset allocation against the currently opened statement
         self._validate_calculated_asset_allocation(asset_allocation_df, self.pdf_scraper.currently_opened_statement)
 
@@ -402,7 +407,7 @@ class Portfolio:
         returns_over_selected_periods = pd.DataFrame([], columns=columns)
 
         # Get the current asset allocation at the beginning of the analysis
-        current_asset_allocation = self.asset_allocation
+        current_asset_allocation = self.asset_allocation["Market Value"].copy()
 
         # Iterate through each selected time period and calculate returns
         for time_period, file_path in time_periods_and_file_paths.items():
@@ -410,18 +415,15 @@ class Portfolio:
             self.pdf_scraper.swap_statement(file_path)
 
             # Get the asset allocation at the end of the current time period
-            period_asset_allocation = self.asset_allocation
+            period_asset_allocation = self.asset_allocation["Market Value"]
 
             # Calculate & store the percentage change in asset allocation
-            pct_change = (current_asset_allocation - period_asset_allocation) / current_asset_allocation
-            returns_over_selected_periods[time_period] = pct_change.fillna(0, inplace=False)
-
-            # Update the current asset allocation for the next iteration
-            current_asset_allocation = period_asset_allocation
+            dollar_change = current_asset_allocation - period_asset_allocation
+            returns_over_selected_periods[time_period] = dollar_change
 
         self._revert_to_original_pdf_file()
 
-        return returns_over_selected_periods * 100
+        return returns_over_selected_periods
 
 
 portfolio = Portfolio(MainScripts.PDFScraper.pdf_scraper)

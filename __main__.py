@@ -2,8 +2,7 @@ from MainScripts.PorfolioAnalysis import portfolio
 
 
 def main():
-    equities = portfolio.equities
-    print(equities)
+    print(portfolio.calculate_returns_over_time())
 
 
 if __name__ == "__main__":

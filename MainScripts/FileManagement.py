@@ -41,7 +41,7 @@ def _list_of_asset_types():
 
 
 config = _configuration_file("MainScripts/config.json")
-statement_directory_path = "1. Schwab Statements"
+statement_directory_path = config["Schwab Statements Directory Path"]
 file_names = os.listdir(statement_directory_path)
 
 
