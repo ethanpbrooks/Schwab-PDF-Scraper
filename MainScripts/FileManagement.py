@@ -1,7 +1,6 @@
 import os
 import json
 import re
-import logging
 from datetime import datetime
 from typing import Dict, List
 
@@ -45,17 +44,6 @@ statement_directory_path = config["Schwab Statements Directory Path"]
 file_names = os.listdir(statement_directory_path)
 
 
-# Configure logging and Create a logger instance for the current module
-logging.basicConfig(
-    filename='../app.log',
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-
-
-
 asset_types_as_shown_per_section: Dict[str, str] = config["Asset Types as Shown per Section"]
 
 
@@ -64,9 +52,7 @@ def extract_schwab_statements() -> Dict[str, str]:
     Extract the "Schwab Portfolio 1. Schwab Statements" dictionary from the given JSON configuration file.
     :return: The "Schwab Portfolio 1. Schwab Statements" dictionary from the configuration file.
     """
-    logging.info("Extracting 'Schwab Portfolio Statements' dictionary from config.json")
     statements = config.get('Schwab Portfolio Statements', {})
-    logging.info("'Schwab Portfolio Statements' dictionary extracted")
 
     return statements
 
@@ -78,7 +64,6 @@ def extract_fixed_income_etf_tickers() -> List[str]:
     """
 
     fixed_income_tickers = config.get("Fixed Income ETFs", [])
-    logging.info("Fixed income ETF tickers extracted")
     return fixed_income_tickers
 
 
