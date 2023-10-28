@@ -1,10 +1,12 @@
 from MainScripts.PorfolioAnalysis import portfolio
-import numpy as np
 
 
 def main():
-    foo = portfolio.calculate_time_weighted_rate_of_return(3)
-    print(foo)
+    risk_measurements = portfolio.calculate_risk_measurements()
+    print(risk_measurements, "\n\n")
+
+    asset_allocation = portfolio.asset_allocation
+    print(asset_allocation)
 
 
 if __name__ == "__main__":

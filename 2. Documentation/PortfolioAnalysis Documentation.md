@@ -22,10 +22,10 @@ The `Portfolio` class represents a financial portfolio and provides methods and 
 - Retrieves a DataFrame containing the allocation of fixed income ETFs in the portfolio.
 - Returns: A pandas DataFrame representing the allocation of fixed income ETFs.
 
-### `equities`
+### `stocks`
 
-- Retrieves a DataFrame containing the allocation of equities in the portfolio.
-- Returns: A pandas DataFrame representing the allocation of equities.
+- Retrieves a DataFrame containing the allocation of stocks in the portfolio.
+- Returns: A pandas DataFrame representing the allocation of stocks.
 
 ### `options`
 
@@ -93,8 +93,8 @@ The `Portfolio` class represents a financial portfolio and provides methods and 
 
 ### `_categorize_equities_and_exchange_traded_funds()`
 
-- Combines and calculates market value for equities and exchange-traded funds (ETFs).
-- Returns: A pandas DataFrame representing the combined allocation of equities and ETFs in the portfolio.
+- Combines and calculates market value for stocks and exchange-traded funds (ETFs).
+- Returns: A pandas DataFrame representing the combined allocation of stocks and ETFs in the portfolio.
 
 ### `_revert_to_original_pdf_file()`
 
@@ -142,6 +142,6 @@ portfolio = Portfolio(Scripts.PDFScraper.pdf_scraper)
 
 # Access properties and methods
 asset_allocation = portfolio.asset_allocation
-equities = portfolio.equities
+stocks = portfolio.stocks
 returns_over_time = portfolio.calculate_returns_over_time()
 yearly_returns = portfolio.calculate_yearly_returns()

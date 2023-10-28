@@ -157,38 +157,43 @@ def _sorted_miscellaneous_text_lines(page_text: str, start: str, end: str) -> Li
     return text_lines
 
 
-def _sorted_asset_class_text_lines(page_text: str, asset: str) -> Optional[List[str]]:
+def _sorted_asset_class_text_lines(page_text: str, asset: str, partial_section_name: str) -> Optional[List[str]]:
     """
     Extract and process the text lines related to a specific asset from a PDF page.
 
     :param page_text: Text content of a PDF page.
     :param asset: The asset type to extract.
+    :param partial_section_name: The partial name of the asset section.
     :return: A list of cleaned and processed text lines related to the asset, or None if the asset is not found.
     """
 
+    asset_page_data = page_text
+
     # Check if the asset is present on the page
-    if asset not in page_text:
+    if asset not in asset_page_data:
         return None
 
     # Remove text after the end of the asset section
     end_of_section = f"Total {asset}"
-    if end_of_section in page_text:
-        page_text = page_text[:page_text.index(end_of_section)]
+    if end_of_section in asset_page_data:
+        page_text = asset_page_data[:asset_page_data.index(end_of_section)]
 
     # Find the start of the asset section
-    start_of_section_index = page_text.index(asset) + len(asset) + 1
-    asset_page_data = page_text[start_of_section_index:]
+    first_start_of_section_index = asset_page_data.index(partial_section_name) + len(partial_section_name) + 1
+    asset_page_data = page_text[first_start_of_section_index:]
+
+    if asset not in asset_page_data:
+        return None
+
+    second_start_of_section_index = asset_page_data.index(asset) + len(asset) + 1
+    asset_page_data = asset_page_data[second_start_of_section_index:]
 
     # Get line items to remove from the config
-    line_items_to_remove = FileManagement.config["Line Items to Remove"] + [asset, "(continued)"]
+    line_items_to_remove = FileManagement.config["Line Items to Remove"] + ["(continued)", "[Non-Sweep]"]
 
     # Process and clean the text lines
-    reduced_text_lines: List[str] = []
-    for pdf_text_line in asset_page_data.split("\n"):
-        if pdf_text_line.startswith(tuple(line_items_to_remove)) or not pdf_text_line:
-            continue
-
-        reduced_text_lines.append(pdf_text_line.strip())
+    reduced_text_lines = [line.strip() for line in asset_page_data.split("\n") if not line.startswith(
+        tuple(line_items_to_remove)) and line]
 
     return reduced_text_lines
 
@@ -249,7 +254,7 @@ class PDFScraper:
 
     This class provides methods to extract investment data from PDF documents,
     process the data, and convert it into pandas DataFrames for further analysis.
-    It supports extracting data related to different asset types, such as equities,
+    It supports extracting data related to different asset types, such as stocks,
     fixed income, exchange-traded funds (ETFs), and more.
 
     :param _pdf: A dictionary containing extracted text content from each page of a PDF document.
@@ -420,6 +425,9 @@ class PDFScraper:
     def cash_transaction_summary_dataframe(self):
         return self._cash_transaction_summary()
 
+    def revert_to_original_pdf_file(self):
+        self.swap_statement(self.selected_schwab_statements["Most Recent"])
+
     def swap_statement(self, new_file_name: str) -> None:
         """
         Swap the PDF content with a new PDF file.
@@ -454,7 +462,7 @@ class PDFScraper:
         for page_number in range(5, len(self.pdf)):
             pdf_page_text: str = self.pdf[page_number]
             if partial_section_name in pdf_page_text:
-                yield _sorted_asset_class_text_lines(pdf_page_text, asset)
+                yield _sorted_asset_class_text_lines(pdf_page_text, asset, partial_section_name)
 
     def _search_item_in_pdf(self, item: str, lower: int, upper: int) -> Optional[str]:
         """

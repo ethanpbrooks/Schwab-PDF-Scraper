@@ -1,6 +1,6 @@
 # PDF Financial Data Scraper
 
-The PDF Financial Data Scraper is a Python tool designed to extract and process investment data from PDF documents, particularly tailored for Schwab statements. It allows you to extract data related to various asset types, such as equities, fixed income, options, and more, and convert it into structured Pandas DataFrames for further analysis.
+The PDF Financial Data Scraper is a Python tool designed to extract and process investment data from PDF documents, particularly tailored for Schwab statements. It allows you to extract data related to various asset types, such as stocks, fixed income, options, and more, and convert it into structured Pandas DataFrames for further analysis.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@ The PDF Financial Data Scraper is a Python tool designed to extract and process 
 ## Features
 
 - Extract investment data from PDF documents.
-- Process data related to different asset types, including equities, fixed income, options, and more.
+- Process data related to different asset types, including stocks, fixed income, options, and more.
 - Convert extracted data into Pandas DataFrames for easy analysis.
 - Retrieve asset composition information.
 - Handle various financial instruments present in Schwab statements.
@@ -135,7 +135,7 @@ equity_data = pdf_scraper.equity_dataframe
 The equity_dataframe property returns a pandas DataFrame containing details about your equity investments, such as symbol, name, quantity, and price.
 
 #### Asset Composition
-The asset_composition property provides an overview of your portfolio's asset composition. It extracts data related to different asset types, such as equities, fixed income, ETFs, and more:
+The asset_composition property provides an overview of your portfolio's asset composition. It extracts data related to different asset types, such as stocks, fixed income, ETFs, and more:
 
 ```pycon
 # Retrieve asset composition data as a DataFrame

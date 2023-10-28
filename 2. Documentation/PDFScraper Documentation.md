@@ -65,7 +65,7 @@ The `AbstractPDFScraper` class serves as an abstract base class, defining the st
 
 ### Methods
 
-The `PDFScraper` class provides various methods to extract and process data related to different asset types, including equities, fixed income, options, and more. These methods return Pandas DataFrames containing the extracted data.
+The `PDFScraper` class provides various methods to extract and process data related to different asset types, including stocks, fixed income, options, and more. These methods return Pandas DataFrames containing the extracted data.
 
 - `asset_composition()` - Extracts asset composition information from the PDF and returns it as a DataFrame.
 

@@ -9,6 +9,8 @@ from dateutil.relativedelta import relativedelta
 from typing import Dict, List
 from dataclasses import dataclass
 
+import calendar
+
 
 # File paths
 EQUITY_SUMMARY_FILE_PATH = "../Excel Outputs/Equity Summary.xlsx"
@@ -49,6 +51,26 @@ def _subtract_months(start_date, num_months):
         start_date = start_date - timedelta(days=30)
 
     return result
+
+
+def _last_day_of_month_from_string(date_string: str):
+    """
+    Convert a date string in the format "year-month" with the month written out to the last day of the month in
+    "year-month-day" format.
+
+    :param date_string:
+    :return: The last day of the specified month in the format "year-month-day".
+    """
+    # Split the date string into year and month
+    year, month_name = date_string.split('-')
+
+    # Map the month name to its numeric representation
+    month = list(calendar.month_name).index(month_name)
+
+    # Find the last day of the month
+    last_day = calendar.monthrange(int(year), month)[1]
+
+    return f"{year}-{month:02d}-{last_day:02d}"
 
 
 def _generate_year_over_year_statement_paths(base_date: datetime, num_years: int) -> List[str]:
@@ -100,7 +122,7 @@ def _pdf_scraper_asset_property_map() -> Dict[str, str]:
 def _portfolio_asset_property_map() -> Dict[str, str]:
     asset_methods: Dict[str, str] = {
         "Money Market Funds": "money_market_funds",
-        "Equities": "equities",
+        "Equities": "stocks",
         "Exchange Traded Funds": "exchange_traded_funds",
         "Fixed Income ETFs": "fixed_income_etfs",
         "U.S. Treasuries": "treasuries",
@@ -133,7 +155,7 @@ class Portfolio:
         Get the version of the Portfolio class.
         :returns A string representing the version of the Portfolio class.
         """
-        return "0.9.6"
+        return "0.9.7"
 
     @property
     def time_periods_and_file_paths(self) -> Dict[str, str]:
@@ -142,6 +164,10 @@ class Portfolio:
         del time_periods_and_file_paths["Most Recent"]
 
         return time_periods_and_file_paths
+
+    @property
+    def account_value(self) -> float:
+        return self.pdf_scraper.change_in_account_value()["This Period"][-1]
 
     @property
     def asset_allocation(self) -> pd.DataFrame:
@@ -162,7 +188,7 @@ class Portfolio:
         """
         Get a DataFrame containing the allocation of fixed income ETFs in the portfolio.
 
-        This property retrieves the combined DataFrame of equities and exchange-traded funds (ETFs),
+        This property retrieves the combined DataFrame of stocks and exchange-traded funds (ETFs),
         and filters out rows corresponding to symbols in the fixed_income_etfs list.
 
         :return: A pandas DataFrame representing the allocation of fixed income ETFs in the portfolio.
@@ -170,14 +196,14 @@ class Portfolio:
         return self._categorize_asset_types_from_dataframes("Fixed Income ETFs")
 
     @property
-    def equities(self) -> pd.DataFrame:
+    def stocks(self) -> pd.DataFrame:
         """
-        Get a DataFrame containing the allocation of equities in the portfolio.
+        Get a DataFrame containing the allocation of stocks in the portfolio.
 
-        This property retrieves the combined DataFrame of equities and exchange-traded funds (ETFs),
+        This property retrieves the combined DataFrame of stocks and exchange-traded funds (ETFs),
         and filters out rows corresponding to symbols in the fixed_income_etfs list.
 
-        :return: A pandas DataFrame representing the allocation of equities in the portfolio.
+        :return: A pandas DataFrame representing the allocation of stocks in the portfolio.
         """
         return self._categorize_asset_types_from_dataframes("Equities")
 
@@ -198,7 +224,7 @@ class Portfolio:
         """
         Get a DataFrame containing the allocation of exchange-traded funds (ETFs) in the portfolio.
 
-        This property retrieves the combined DataFrame of equities and ETFs,
+        This property retrieves the combined DataFrame of stocks and ETFs,
         and filters out rows corresponding to symbols in the fixed_income_etfs list.
 
         :return: A pandas DataFrame representing the allocation of ETFs in the portfolio.
@@ -271,7 +297,7 @@ class Portfolio:
         :return: A dictionary with asset type names as keys and corresponding DataFrames as values.
         """
         return {
-            "Equities": self.equities,
+            "Equities": self.stocks,
             "Exchange Traded Funds": self.exchange_traded_funds,
             "Equity Funds": self.equity_funds
         }
@@ -354,14 +380,14 @@ class Portfolio:
 
     def _categorize_equities_and_exchange_traded_funds(self) -> pd.DataFrame:
         """
-        Combine and calculate market value for equities and exchange-traded funds (ETFs).
+        Combine and calculate market value for stocks and exchange-traded funds (ETFs).
 
         This method combines the equity and ETF dataframes from the PDFScraper instance,
         calculates the market value for each equity, and returns the resulting combined DataFrame.
 
-        :return: A pandas DataFrame representing the combined allocation of equities and ETFs in the portfolio.
+        :return: A pandas DataFrame representing the combined allocation of stocks and ETFs in the portfolio.
         """
-        # Extract quantity and price column names for equities
+        # Extract quantity and price column names for stocks
         quantity, price = MainScripts.PDFScraper.equity_numeric
 
         # Combine both equity and ETF dataframes from the PDFScraper instance
@@ -376,18 +402,6 @@ class Portfolio:
 
         return combined_dataframe
 
-    def _revert_to_original_pdf_file(self) -> None:
-        """
-        Revert the PDF file back to the original file.
-
-        This method swaps the currently loaded PDF file with the original PDF file.
-        It is used to ensure that the PDF file is reverted to its original state after performing operations.
-
-        :return: None
-        """
-        self.pdf_scraper.swap_statement(self.pdf_scraper.selected_schwab_statements["Most Recent"])
-
-
     def _validate_calculated_asset_allocation(self, calculated_allocation: pd.DataFrame, file_name: str) -> None:
         """
         Validate the calculated asset allocation against the scraped asset allocation.
@@ -400,20 +414,20 @@ class Portfolio:
 
         :raises ValueError: If the calculated asset allocation total does not match the scraped total.
         """
-        scraped_asset_allocation = np.round(self.pdf_scraper.asset_composition["Market Value"].sum(), 0)
+        scraped_portfolio_total = np.round(self.account_value, 0)
         calculated_total = np.round(calculated_allocation["Market Value"].sum(), 0)
 
-        if scraped_asset_allocation != calculated_total:
+        if scraped_portfolio_total != calculated_total:
             raise ValueError(
                 f"Portfolio total mismatch for file '{file_name}' "
-                f"Scraped total: {scraped_asset_allocation}, calculated total: {calculated_total}."
+                f"Scraped total: {scraped_portfolio_total}, calculated total: {calculated_total}."
             )
 
     def _calculate_asset_allocation(self) -> pd.DataFrame:
         """
         Calculate the allocation of assets in the portfolio.
 
-        This method computes the allocation of assets in the portfolio, including equities,
+        This method computes the allocation of assets in the portfolio, including stocks,
         fixed income, cash equivalents, cash, and options.
 
         :returns pd.DataFrame: A DataFrame containing the asset allocation.
@@ -428,19 +442,20 @@ class Portfolio:
         }
 
         # Create a DataFrame from the asset totals, transpose, and rename the column
-        asset_allocation_df = pd.DataFrame(asset_totals, index=[0]).transpose().rename(
-            columns={0: "Market Value"}
-        )
+        asset_allocation: pd.DataFrame = pd.DataFrame(asset_totals, index=[0])
 
-        # Calculate the Weights
-        allocation_column: pd.Series = asset_allocation_df["Market Value"]
-        portfolio_total_value = allocation_column.sum()
-        asset_allocation_df["Weight"] = allocation_column / portfolio_total_value
+        cash_and_cash_equivalents_columns = ["Cash", "Cash Equivalents"]
+        asset_allocation["Cash & Equivalents"] = asset_allocation[cash_and_cash_equivalents_columns].to_numpy().sum()
+
+        asset_allocation = asset_allocation.drop(cash_and_cash_equivalents_columns, axis=1)
+        asset_allocation = asset_allocation.transpose().rename(columns={0: "Market Value"})
+
+        asset_allocation["Weight"] = asset_allocation["Market Value"] / asset_allocation["Market Value"].sum()
 
         # Validate the calculated asset allocation against the currently opened statement
-        self._validate_calculated_asset_allocation(asset_allocation_df, self.pdf_scraper.currently_opened_statement)
+        self._validate_calculated_asset_allocation(asset_allocation, self.pdf_scraper.currently_opened_statement)
 
-        return asset_allocation_df
+        return asset_allocation
 
     def calculate_returns_over_time(self):
         """
@@ -476,126 +491,69 @@ class Portfolio:
             dollar_change = current_asset_allocation - period_asset_allocation
             returns_over_selected_periods[time_period] = dollar_change
 
-        self._revert_to_original_pdf_file()
+        self.pdf_scraper.revert_to_original_pdf_file()
 
         return returns_over_selected_periods
 
-    def calculate_asset_class_returns_over_time(self, asset: str):
-        # Copy the selected Schwab statements and remove the "Most Recent" entry
-        time_periods_and_file_paths: Dict[str, str] = self.pdf_scraper.selected_schwab_statements.copy()
-        del time_periods_and_file_paths["Most Recent"]
-
-        # Define the columns for the resulting DataFrame
-        columns = time_periods_and_file_paths.keys()
-        asset_class_returns_over_time = pd.DataFrame([], columns=columns)
-
-        # Get the current asset allocation at the beginning of the analysis
-        current_asset_allocation = getattr(self, _portfolio_asset_property_map()[asset])["Market Value"].copy()
-        current_total = current_asset_allocation.sum()
-
-        # Iterate through each selected time period and calculate returns
-        for time_period, file_path in time_periods_and_file_paths.items():
-            # Swap to the statement for the current time period
-            self.pdf_scraper.swap_statement(file_path)
-
-            # Get the asset allocation at the end of the current time period
-            period_asset_allocation = getattr(self, _portfolio_asset_property_map()[asset])["Market Value"]
-
-            # Calculate & store the percentage change in asset allocation
-            period_total = period_asset_allocation.sum()
-            percentage_change = (current_total - period_total) / period_total
-            asset_class_returns_over_time[time_period] = [percentage_change]
-
-
-        self._revert_to_original_pdf_file()
-
-        return asset_class_returns_over_time
-
-    def historical_asset_allocation(self, total_portfolio: bool, num_months: int) -> pd.DataFrame:
-        """
-        Calculate historical asset totals for a specified number of months.
-
-        :param num_months: The number of months for which historical data should be calculated.
-        :param total_portfolio: Choose whether to extract the entire portfolio at once or to break-down into individual assets.
-        :return: A DataFrame containing historical asset totals for the specified months, indexed by file dates.
-        """
+    def historical_account_value(self, num_months: int) -> pd.DataFrame:
         # Get the start date from the currently opened statement's file name.
         start_date: str = self.pdf_scraper.currently_opened_statement.split(".")[0]
 
         # Calculate a list of file dates by subtracting the specified number of months.
         file_dates: list = _subtract_months(start_date, num_months)
 
-        # Define the primary asset classes you want to track.
-        primary_asset_classes = ["Equities", "Fixed Income"]
-
-        # Create a dictionary to store historical asset totals for each asset class.
-        historical_asset_totals: Dict[str, list] = _historical_allocation_dictionary(total_portfolio)
-
         # Iterate through the file dates to gather historical data.
+        historical_values: Dict[str, list] = {}
         for date in file_dates:
             # Swap the statement to the corresponding date.
             self.pdf_scraper.swap_statement(f"{date}.pdf")
-            self._retrieve_historical_data_point(total_portfolio, historical_asset_totals)
+            historical_values[date] = [self.account_value]
 
-        # Create a Pandas DataFrame to store historical asset totals with file dates as the index.
-        return pd.DataFrame(historical_asset_totals, index=file_dates)[::-1]
+        historical_values: pd.DataFrame = pd.DataFrame(historical_values).transpose().rename(
+            columns={0: "Account Value"})[::-1]
 
-    def calculate_time_weighted_rate_of_return(self, num_months: int):
-        # Get the start date from the currently opened statement's file name.
-        start_date: str = self.pdf_scraper.currently_opened_statement.split(".")[0]
 
-        # Calculate a list of file dates by subtracting the specified number of months.
-        file_dates: list = _subtract_months(start_date, num_months)
+        return historical_values
 
-        current_total: float = portfolio.pdf_scraper.asset_composition["Market Value"].sum()
-        historical_cash_flows: List[List[str]] = []
-
-        for date in file_dates:
-            file_path = f"{date}.pdf"
-            self.pdf_scraper.swap_statement(file_path)
-            period_cash_flows = self.pdf_scraper.change_in_account_value().loc[
-                ["Credits", "Debits"]
-            ]["This Period"].sum()
-
-            historical_cash_flows.append([date, period_cash_flows])
-
-        last_total: float = portfolio.pdf_scraper.asset_composition["Market Value"].sum()
-
-        self._revert_to_original_pdf_file()
-        return historical_cash_flows
-
-    def variance(self, num_months: int):
+    def calculate_risk_measurements(self):
         """
-        Calculate the variance of portfolio returns for a specified number of months.
+        Calculate risk measurements, including variance, standard deviation, and annualized standard deviation.
 
-        :param num_months: The number of months for which variance should be calculated.
-        :return: The variance of portfolio returns.
+        This method calculates risk measurements based on historical percentage returns over various time periods.
+
+        :return: A DataFrame containing risk measurements.
         """
-        historical_portfolio_total_value = self.historical_asset_allocation(
-            total_portfolio=True,
-            num_months=num_months
-        )
+        # Calculate historical percentage returns over the specified time period
+        quarter, one_year, three_year, five_year = 3, 12, 12 * 3, 12 * 5
 
-        historical_percentage_returns = historical_portfolio_total_value.pct_change()
-        return historical_percentage_returns.var().loc["Portfolio"]
+        historical_percentage_returns = self.historical_account_value(three_year).pct_change()
 
-    def standard_deviation(self, num_months: int):
-        """
-        Calculate the standard deviation of portfolio returns for a specified number of months.
+        date_obj = datetime.strptime(historical_percentage_returns.index[-1], "%Y-%B")
+        numerical_month = date_obj.month
 
-        :param num_months: The number of months for which standard deviation should be calculated.
-        :return: The standard deviation of portfolio returns.
-        """
-        return np.sqrt(self.variance(num_months=num_months))
+        # Define the time periods and corresponding column names
+        periods = [quarter, numerical_month, one_year, three_year, five_year]
+        columns = ["Quarter", "Year to Date", "One Year", "Three Year", "Five Year"]
 
-    def sharpe_ratio(self, num_months: int):
-        ...
+        # Calculate variances for each time period
+        variances = [historical_percentage_returns.tail(n).var()["Account Value"] for n in periods]
 
+        # Create a DataFrame to store risk measurements
+        risk_measurements = pd.DataFrame({c: [v] for (c, v) in zip(columns, variances)}, index=["Variance"]).transpose()
+        risk_measurements["Standard Deviation"] = np.sqrt(risk_measurements["Variance"])
+        risk_measurements["Annualized Standard Deviation"] = risk_measurements["Standard Deviation"] * np.sqrt(12)
+
+        # Round the values to two decimal places and express as percentages
+        risk_measurements = np.round(risk_measurements * 100, 2)
+
+        self.pdf_scraper.revert_to_original_pdf_file()
+
+        return risk_measurements
 
     def export_to_excel(self) -> None:
         asset_methods: Dict[str, str] = {
             "Money Market Funds": "money_market_funds",
-            "Equities": "equities",
+            "Equities": "stocks",
             "Exchange Traded Funds": "exchange_traded_funds",
             "Fixed Income ETFs": "fixed_income_etfs",
             "U.S. Treasuries": "treasuries",
