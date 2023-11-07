@@ -1,9 +1,9 @@
-from MainScripts.PorfolioAnalysis import portfolio
+from PythonScripts.PortfolioScripts.Portfolio import portfolio
 
 
 def main():
-    foo = portfolio.risk_adjusted_performance_measures
-    print(foo)
+    print("PDF Scraper and Portfolio Analysis (Version 2.0.0)\n\n")
+    print(portfolio.assets.exchange_traded_funds)
 
 
 if __name__ == "__main__":

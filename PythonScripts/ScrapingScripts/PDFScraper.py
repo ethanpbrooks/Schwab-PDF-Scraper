@@ -1,18 +1,13 @@
 import fitz
 import os
 import pandas as pd
-import MainScripts.FileManagement as FileManagement
+import PythonScripts.ScrapingScripts.FileManagement as FileManagement
 
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
 
 
 _schwab_statement_paths: Dict[str, str] = FileManagement.extract_schwab_statements()
-_months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-]
-
 
 # Dataframe columns
 equity_columns = ["Symbol", "Name", "Quantity", "Price"]
@@ -58,7 +53,7 @@ def _read_pdf(pdf_name: str) -> Dict[int, str]:
     return extracted_pages
 
 
-def _convert_columns_to_numeric(df: pd.DataFrame, columns: List[str]) -> None:
+def _convert_columns_to_numeric(df: pd.DataFrame, columns: List[str], exceptions: List[str]) -> None:
     """
     Clean and convert specified columns in a Pandas DataFrame to numeric format.
 
@@ -82,10 +77,11 @@ def _convert_columns_to_numeric(df: pd.DataFrame, columns: List[str]) -> None:
         return float(value)
 
     # Apply the custom function to the specified columns
-    df[columns] = df[columns].applymap(clean_and_convert)
+    adjusted_columns = [x for x in columns if x not in exceptions]
+    df[adjusted_columns] = df[adjusted_columns].applymap(clean_and_convert)
 
 
-def _text_lines_to_dataframe(text_lines: List[str], columns: List[str]) -> pd.DataFrame:
+def _text_lines_to_dataframe(text_lines: List[str], columns: List[str], exceptions: List[str]) -> pd.DataFrame:
     """
     Transform a list of text lines into a Pandas DataFrame with specified columns.
 
@@ -108,7 +104,7 @@ def _text_lines_to_dataframe(text_lines: List[str], columns: List[str]) -> pd.Da
         data[column_index].append(line)
 
     dataframe = pd.DataFrame(data).set_index(columns[0])
-    _convert_columns_to_numeric(dataframe, columns[1:])
+    _convert_columns_to_numeric(dataframe, columns[1:], exceptions)
 
     return dataframe
 
@@ -138,6 +134,27 @@ def _symbol_corresponding_to_asset(asset: str) -> str:
 
     translated_asset_name = FileManagement.asset_types_as_shown_per_section[asset]
     return FileManagement.config["Symbols Corresponding to Each Asset Type"][translated_asset_name]
+
+
+def _sorted_transaction_text_lines(transaction_text_lines: List[str]) -> List[str]:
+    sorted_text_lines = []
+    start_of_section = transaction_text_lines.index("Total Amount") + 1
+
+    symbols = [line.split(": ")[-1] for line in transaction_text_lines if line.find(": ") != -1]
+    print(symbols)
+
+    for text_line in transaction_text_lines[start_of_section:]:
+
+        if "Reinvested Shares" in text_line:
+            asset_data = text_line.replace("Reinvested Shares ", "")
+            asset_name = asset_data.split(": ")[0]
+
+            sorted_text_lines += ["Reinvested Shares", asset_name]
+            continue
+
+        sorted_text_lines.append(text_line)
+
+    return sorted_text_lines
 
 
 def _sorted_miscellaneous_text_lines(page_text: str, start: str, end: str) -> List[str]:
@@ -261,32 +278,18 @@ class PDFScraper:
     """
 
     _pdf: Dict[int, str]
-    _selected_statements_to_analyze: Dict[str, str]
-    _list_of_fixed_income_etf: List[str]
     _currently_opened_statement: str = field(init=False)
 
     @property
-    def selected_schwab_statements(self) -> Dict[str, str]:
-        """
-        Get the list of selected Schwab statements for analysis.
-
-        This property returns a list of selected Schwab statement file names that have been chosen for analysis.
-        These statements are typically the ones that match the specified criteria or time periods.
-
-        :return: A list of selected Schwab statement file names.
-        """
-        return self._selected_statements_to_analyze
-
-    @property
     def symbols_of_fixed_income_etfs(self) -> List[str]:
-        return self._list_of_fixed_income_etf
+        return FileManagement.extract_fixed_income_etf_tickers()
 
     @property
     def currently_opened_statement(self) -> str:
         """
         Get the currently opened Schwab statement file.
 
-        This property returns the file name of the currently opened Schwab statement. It allows you to
+        This property performance the file name of the currently opened Schwab statement. It allows you to
         identify which statement is currently being processed or analyzed.
 
         :return: The file name of the currently opened Schwab statement.
@@ -303,20 +306,29 @@ class PDFScraper:
         return self._pdf
 
     @property
+    def account_value(self):
+        """
+        Get the total value of the account for the current period.
+
+        :return: Total account value for the current period.
+        """
+        return self.change_in_account_value["This Period"][-1]
+
+    @property
     def asset_composition(self) -> pd.DataFrame:
         """
-        Get the DataFrame containing asset composition information.
+        Get the DataFrame containing asset assets information.
 
-        :return: A DataFrame containing asset composition data.
+        :return: A DataFrame containing asset assets data.
         """
         return self._provided_asset_composition()
 
     @property
-    def options_dataframe(self) -> pd.DataFrame:
+    def scraped_options(self) -> pd.DataFrame:
         """
         Retrieve and convert options data from the PDF statement into a DataFrame.
 
-        This property extracts options data from the PDF statement, converts it into a DataFrame, and returns it.
+        This property extracts options data from the PDF statement, converts it into a DataFrame, and performance it.
         The resulting DataFrame contains information about options, including columns like symbol,
         quantity, market value, etc.
 
@@ -327,7 +339,7 @@ class PDFScraper:
         )
 
     @property
-    def equity_dataframe(self) -> pd.DataFrame:
+    def scraped_stocks(self) -> pd.DataFrame:
         """
         Get the DataFrame containing equity investment information.
 
@@ -337,7 +349,7 @@ class PDFScraper:
                                                                   equity_numeric)
 
     @property
-    def bond_funds_dataframe(self) -> pd.DataFrame:
+    def scraped_bond_funds(self) -> pd.DataFrame:
         """
         Get the DataFrame containing bond fund investment information.
 
@@ -346,7 +358,7 @@ class PDFScraper:
         return self._convert_generator_of_asset_data_to_dataframe("Bond Funds", equity_columns, equity_numeric)
 
     @property
-    def equity_funds_dataframe(self) -> pd.DataFrame:
+    def scraped_equity_funds(self) -> pd.DataFrame:
         """
         Get the DataFrame containing equity fund investment information.
 
@@ -356,7 +368,7 @@ class PDFScraper:
         return self._convert_generator_of_asset_data_to_dataframe("Equity Funds", equity_columns, equity_numeric)
 
     @property
-    def exchange_traded_funds_dataframe(self) -> pd.DataFrame:
+    def scraped_exchange_traded_funds(self) -> pd.DataFrame:
         """
         Get the DataFrame containing Exchange Traded Fund (ETF) investment information.
 
@@ -366,7 +378,7 @@ class PDFScraper:
             "Exchange Traded Funds", equity_columns, equity_numeric)
 
     @property
-    def other_assets_dataframe(self) -> pd.DataFrame:
+    def scraped_other_assets(self) -> pd.DataFrame:
         """
         Get a DataFrame containing information about other assets (e.g., ETFs) from the statements.
 
@@ -375,7 +387,7 @@ class PDFScraper:
         return self._convert_generator_of_asset_data_to_dataframe("Other Assets", equity_columns, equity_numeric)
 
     @property
-    def money_market_fund_dataframe(self) -> pd.DataFrame:
+    def scraped_money_market_funds(self) -> pd.DataFrame:
         """
         Property to retrieve a DataFrame containing investment details for Money Market Funds.
 
@@ -384,7 +396,7 @@ class PDFScraper:
         return self._convert_generator_of_asset_data_to_dataframe("Fund Name", equity_columns, equity_numeric)
 
     @property
-    def corporate_bonds_dataframe(self) -> pd.DataFrame:
+    def scraped_corporate_bonds(self) -> pd.DataFrame:
         """
         Property to retrieve a DataFrame containing investment details for Corporate Bonds.
 
@@ -395,13 +407,13 @@ class PDFScraper:
         )
 
     @property
-    def bond_partial_calls(self) -> pd.DataFrame:
+    def scraped_bond_partial_calls(self) -> pd.DataFrame:
         """
         Retrieve a DataFrame containing information about bond partial calls.
 
         This property method extracts and processes data related to bond partial calls
         from the PDFScraper instance. It converts the extracted data into a pandas DataFrame
-        and returns it.
+        and performance it.
 
         :return: A pandas DataFrame containing information about bond partial calls.
         :rtype: pd.DataFrame
@@ -411,7 +423,7 @@ class PDFScraper:
         )
 
     @property
-    def treasuries_dataframe(self) -> pd.DataFrame:
+    def scraped_treasuries(self) -> pd.DataFrame:
         """
         Property to retrieve a DataFrame containing investment details for U.S. Treasuries.
 
@@ -422,11 +434,31 @@ class PDFScraper:
         )
 
     @property
-    def cash_transaction_summary_dataframe(self):
+    def cash_transaction_summary(self):
+        """
+        Get a summary DataFrame of cash transactions for the portfolio.
+
+        This property retrieves and performance a summary DataFrame of cash transactions for the portfolio, which can provide
+        insights into the cash flow activity within the portfolio.
+
+        :return: A DataFrame summarizing cash transactions.
+        """
         return self._cash_transaction_summary()
 
+    @property
+    def change_in_account_value(self) -> pd.DataFrame:
+        """
+        Get a DataFrame showing changes in the account's value.
+
+        This property retrieves and performance a DataFrame that shows the changes in the account's value over time. It can
+        be useful for tracking the performance and fluctuations of the portfolio.
+
+        :return: A DataFrame with changes in account value.
+        """
+        return self._change_in_account_value()
+
     def revert_to_original_pdf_file(self):
-        self.swap_statement(self.selected_schwab_statements["Most Recent"])
+        self.swap_statement(FileManagement.extract_schwab_statements())
 
     def swap_statement(self, new_file_name: str) -> None:
         """
@@ -444,7 +476,7 @@ class PDFScraper:
         self._pdf = new_pdf_content
         self._currently_opened_statement = new_file_name
 
-    def _find_asset_section_in_statement(self, asset: str):
+    def _find_asset_section_in_statement(self, asset: str, section_name: str):
         """
         Find the start of the asset section in the PDF pages.
 
@@ -456,13 +488,10 @@ class PDFScraper:
         :return: Generator that yields text lines of the section found on each page.
         """
 
-        asset_name_as_shown_per_section = FileManagement.asset_types_as_shown_per_section[asset]
-        partial_section_name = f"Investment Detail - {asset_name_as_shown_per_section}"
-
         for page_number in range(5, len(self.pdf)):
             pdf_page_text: str = self.pdf[page_number]
-            if partial_section_name in pdf_page_text:
-                yield _sorted_asset_class_text_lines(pdf_page_text, asset, partial_section_name)
+            if section_name in pdf_page_text:
+                yield _sorted_asset_class_text_lines(pdf_page_text, asset, section_name)
 
     def _search_item_in_pdf(self, item: str, lower: int, upper: int) -> Optional[str]:
         """
@@ -497,7 +526,7 @@ class PDFScraper:
         columns = ["Index", "This Period", "Year to Date"]
 
         # Skip the first three lines as they are headers
-        return _text_lines_to_dataframe(text_lines[3:], columns)
+        return _text_lines_to_dataframe(text_lines[3:], columns, [])
 
     def _provided_asset_composition(self) -> Optional[pd.DataFrame]:
         """
@@ -516,12 +545,10 @@ class PDFScraper:
         columns = ["Index", "Market Value", "% of Account Assets"]
 
         # Skip the first three lines as they are headers and delete the last column
-        return _text_lines_to_dataframe(text_lines[3:], columns).drop(columns[-1], axis=1)
+        return _text_lines_to_dataframe(text_lines[3:], columns, []).drop(columns[-1], axis=1)
 
-    def change_in_account_value(self) -> Optional[pd.DataFrame]:
+    def _change_in_account_value(self) -> pd.DataFrame:
         change_in_account_value = self._search_item_in_pdf("Change in Account Value", 3, 6)
-        if change_in_account_value is None:
-            return None
 
         text_lines: List[str] = _sorted_miscellaneous_text_lines(
             change_in_account_value, "Change in Account Value", "Accrued Income"
@@ -530,7 +557,51 @@ class PDFScraper:
         columns = ["Index", "This Period", "Year to Date"]
 
         # Skip the first three lines as they are headers and delete the last column
-        return _text_lines_to_dataframe(text_lines[3:], columns).drop(columns[-1], axis=1)
+        return _text_lines_to_dataframe(text_lines[3:], columns, []).drop(columns[-1], axis=1)
+
+    def convert_generator_of_transaction_data_to_dataframe(self, transaction: str):
+        """
+        Convert a generator of transaction data into a DataFrame.
+
+        This method takes a generator of transaction data and converts it into a structured DataFrame with specified columns.
+
+        :param transaction: A string containing transaction data.
+        :return: A DataFrame containing transaction details.
+        """
+        # Define the section name to locate in the statement
+        section_name = "Transaction Detail - Purchases & Sales"
+
+        # Find the sections in the statement that match the section name
+        transaction_sections = self._find_asset_section_in_statement(transaction, section_name)
+
+        # Define the columns and non-numeric columns
+        columns = [
+            "Settle Date", "Trade Date", "Description", "Name", "Symbol", "Quantity", "Unit Price",
+            "Charges and Interest", "Total Amount"
+        ]
+        non_numeric_columns = ["Settle Date", "Trade Date", "Description", "Name", "Symbol"]
+
+        # Initialize an empty DataFrame to store transaction data
+        transactions_dataframe = pd.DataFrame()
+
+        # Iterate through the transaction sections and process the data
+        for transaction_details in transaction_sections:
+            if transaction_details is None:
+                continue
+
+            # Sort and process text lines within the transaction details
+            sorted_text_lines = _sorted_transaction_text_lines(transaction_details)
+
+            # Convert sorted text lines to a DataFrame
+            retrieved_dataframe = _text_lines_to_dataframe(sorted_text_lines, columns, non_numeric_columns)
+
+            # Concatenate the retrieved DataFrame to the main DataFrame
+            transactions_dataframe = pd.concat([transactions_dataframe, retrieved_dataframe], axis=0)
+
+        # Reset the index of the resulting DataFrame
+        transactions_dataframe = transactions_dataframe.reset_index()
+
+        return transactions_dataframe
 
     def _convert_generator_of_asset_data_to_dataframe(self, asset: str, columns: List[str],
                                                       numeric_columns: List[str]) -> pd.DataFrame:
@@ -549,7 +620,10 @@ class PDFScraper:
         :return: A Pandas DataFrame containing the extracted asset data.
         :rtype: pd.DataFrame
         """
-        asset_sections = self._find_asset_section_in_statement(asset)
+        asset_name_as_shown_per_section = FileManagement.asset_types_as_shown_per_section[asset]
+        partial_section_name = f"Investment Detail - {asset_name_as_shown_per_section}"
+
+        asset_sections = self._find_asset_section_in_statement(asset, partial_section_name)
         data_list = []
 
         # Iterate through the asset sections and extract data
@@ -562,23 +636,19 @@ class PDFScraper:
         df = pd.DataFrame(data_list, columns=columns)
 
         # Clean up specified numeric columns by removing commas and converting to float
-        _convert_columns_to_numeric(df, numeric_columns)
+        _convert_columns_to_numeric(df, numeric_columns, [])
 
         return df
 
     def __post_init__(self):
-        self._currently_opened_statement = self.selected_schwab_statements["Most Recent"]
+        self._currently_opened_statement = FileManagement.extract_schwab_statements()
 
 
 # FileManagement.validate_statement_files(statement_folder_path=statements_directory_path)
 
-_fixed_income_etfs = FileManagement.extract_fixed_income_etf_tickers()
 
-_most_recent_file = _schwab_statement_paths["Most Recent"]
-pdf_file_data: Dict[int, str] = _read_pdf(_most_recent_file)
+pdf_file_data: Dict[int, str] = _read_pdf(FileManagement.extract_schwab_statements())
 
 pdf_scraper = PDFScraper(
-    pdf_file_data,
-    _schwab_statement_paths,
-    _fixed_income_etfs
+    _pdf=pdf_file_data,
 )

@@ -23,7 +23,7 @@ The `AbstractPDFScraper` class serves as an abstract base class, defining the st
 
 - `options_dataframe` (Abstract Property): Retrieve and convert options data from the PDF statement into a DataFrame.
 
-- `equity_dataframe` (Abstract Property): Get the DataFrame containing equity investment information.
+- `scraped_stocks` (Abstract Property): Get the DataFrame containing equity investment information.
 
 - `bond_funds_dataframe` (Abstract Property): Get the DataFrame containing bond fund investment information.
 
@@ -71,7 +71,7 @@ The `PDFScraper` class provides various methods to extract and process data rela
 
 - `options_dataframe()` - Retrieves and converts options data from the PDF statement into a DataFrame.
 
-- `equity_dataframe()` - Retrieves equity investment data from the PDF statement and returns it as a DataFrame.
+- `scraped_stocks()` - Retrieves equity investment data from the PDF statement and returns it as a DataFrame.
 
 - `bond_funds_dataframe()` - Retrieves bond fund investment data from the PDF statement and returns it as a DataFrame.
 
@@ -100,9 +100,9 @@ The `PDFScraper` class provides various methods to extract and process data rela
 pdf_scraper = PDFScraper(_pdf_data, _selected_statements, _fixed_income_etfs)
 
 # Retrieve equity investment data as a DataFrame
-equity_data = pdf_scraper.equity_dataframe()
+equity_data = pdf_scraper.scraped_stocks()
 
-# Retrieve asset composition data as a DataFrame
+# Retrieve asset assets data as a DataFrame
 asset_composition_data = pdf_scraper.asset_composition()
 ```
 
@@ -117,7 +117,7 @@ Extracts the asset composition information from the PDF and returns it as a Data
 This method extracts the relevant section of asset composition information from the PDF,
 processes the data, and creates a DataFrame with columns for "Type" and "Market Value".
 
-**Returns:**
+**PerformanceAnalysis:**
 - A pandas DataFrame containing asset composition data with columns "Type" and "Market Value".
 
 ### `_asset_composition_text_lines(self) -> Optional[List[str]]`
@@ -128,7 +128,7 @@ This method searches through the first 5 pages of the Schwab statement to find t
 that contains asset composition information. If found, it returns the list of text lines
 containing this information.
 
-**Returns:**
+**PerformanceAnalysis:**
 - A list of text lines containing asset composition information if found, else None.
 
 ### `_find_asset_section_in_statement(self, asset: str)`
@@ -141,7 +141,7 @@ pages starting from a specified page number.
 **Parameters:**
 - `asset` (str): The asset type for which to find the section.
 
-**Returns:**
+**PerformanceAnalysis:**
 - Generator that yields text lines of the section found on each page.
 
 ### `_convert_generator_of_asset_data_to_dataframe(self, asset: str, columns: List[str], numeric_columns: List[str]) -> pd.DataFrame`
@@ -156,7 +156,7 @@ and converts it into a Pandas DataFrame.
 - `columns` (List[str]): List of column names for the DataFrame.
 - `numeric_columns` (List[str]): List of column names to clean and convert to numeric type.
 
-**Returns:**
+**PerformanceAnalysis:**
 - A Pandas DataFrame containing the extracted asset data.
 
 ### `__post_init__(self)`

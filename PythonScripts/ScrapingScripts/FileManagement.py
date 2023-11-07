@@ -10,36 +10,7 @@ def _configuration_file(file_path: str) -> dict:
         return json.load(config_file)
 
 
-def _standard_selection_of_schwab_statements() -> Dict[str, str]:
-    ...
-
-
-def _lookup_statements_directory():
-    ...
-
-
-def _list_of_asset_types():
-    # Asset types
-    equities = "Equities"
-    treasuries = "U.S. Treasuries"
-    corporate_bonds = "Corporate Bonds"
-    exchange_traded_funds = "Exchange Traded Funds"
-    bond_funds = "Bond Funds"
-    equity_funds = "Equity Funds"
-    money_market_funds = "Fund Name"  # Money Market Funds (Non-Sweep)
-    other_assets = "Other Assets"
-    other_fixed_income = "Other Fixed Income"
-    options = "Options"
-
-    all_asset_types = [
-        equities, treasuries, corporate_bonds, exchange_traded_funds, bond_funds, equity_funds, money_market_funds,
-        other_assets, options, other_fixed_income
-    ]
-
-    return all_asset_types
-
-
-config = _configuration_file("MainScripts/config.json")
+config = _configuration_file("PythonScripts/ScrapingScripts/config.json")
 statement_directory_path = config["Schwab Statements Directory Path"]
 file_names = os.listdir(statement_directory_path)
 
@@ -47,14 +18,14 @@ file_names = os.listdir(statement_directory_path)
 asset_types_as_shown_per_section: Dict[str, str] = config["Asset Types as Shown per Section"]
 
 
-def extract_schwab_statements() -> Dict[str, str]:
+def extract_schwab_statements() -> str:
     """
     Extract the "Schwab Portfolio 1. Schwab Statements" dictionary from the given JSON configuration file.
     :return: The "Schwab Portfolio 1. Schwab Statements" dictionary from the configuration file.
     """
     statements = config.get('Schwab Portfolio Statements', {})
 
-    return statements
+    return config["Most Recent Schwab Statement"]
 
 
 def extract_fixed_income_etf_tickers() -> List[str]:
@@ -115,25 +86,3 @@ def validate_statement_files() -> bool:
 
     return True
 
-
-def validated_file_path(base_file_name: str) -> str:
-    """
-    Validate and retrieve the full file path for a PDF statement.
-
-    This function takes a base file name, appends it to the statement folder path, and checks if the corresponding
-    PDF file exists. If the file is found, it returns the full file path; otherwise, it raises a `ValueError` with
-    an informative message.
-
-    :param base_file_name: The base name of the PDF statement file.
-    :type base_file_name: str
-    :return: The full file path for the PDF statement.
-    :rtype: str
-    :raises ValueError: If the specified PDF file does not exist in the statement folder.
-    """
-    file_path = os.path.join(statement_directory_path, f"{base_file_name}.pdf")
-    file_was_found = os.path.isfile(file_path)
-
-    if file_was_found:
-        return file_path
-    else:
-        raise ValueError(f"PDF file '{base_file_name}.pdf' not found in the statement folder.")

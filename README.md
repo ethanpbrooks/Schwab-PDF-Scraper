@@ -120,25 +120,25 @@ To access and analyze your investment data, you can utilize the instance of the 
 First, make sure you have imported the `pdf_scraper` instance into your script as shown below:
 
 ```pycon
-from MainScripts.PDFScraper import pdf_scraper
+from PythonScripts.PDFScraper import pdf_scraper
 ```
 Now, you can easily retrieve specific investment data as follows:
 
 #### Equity Investment Data
-To obtain equity investment data, including information about stocks and shares, you can use the equity_dataframe property:
+To obtain equity investment data, including information about stocks and shares, you can use the scraped_stocks property:
 
 ```pycon
 # Retrieve Equity investment data as a DataFrame
-equity_data = pdf_scraper.equity_dataframe
+equity_data = pdf_scraper.scraped_stocks
 ```
 
-The equity_dataframe property returns a pandas DataFrame containing details about your equity investments, such as symbol, name, quantity, and price.
+The scraped_stocks property returns a pandas DataFrame containing details about your equity investments, such as symbol, name, quantity, and price.
 
 #### Asset Composition
 The asset_composition property provides an overview of your portfolio's asset composition. It extracts data related to different asset types, such as stocks, fixed income, ETFs, and more:
 
 ```pycon
-# Retrieve asset composition data as a DataFrame
+# Retrieve asset assets data as a DataFrame
 asset_composition = pdf_scraper.asset_composition
 ```
 
