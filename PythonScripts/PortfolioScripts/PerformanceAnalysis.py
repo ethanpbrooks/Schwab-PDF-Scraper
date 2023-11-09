@@ -21,7 +21,7 @@ class PerformanceAnalysis:
     pdf_scraper: PDFScraper
 
     @property
-    def time_weighted_returns(self):
+    def time_weighted_returns(self) -> pd.DataFrame:
         """
         Calculate time-weighted performance for various time periods.
 
@@ -35,8 +35,8 @@ class PerformanceAnalysis:
         return self._calculate_variance_and_standard_deviation()
 
     @property
-    def risk_adjusted_measures(self):
-        return self._calculate_risked_adjusted_measures()
+    def risk_measures(self):
+        return self._calculate_risk_measures()
 
     @staticmethod
     def _calculate_month_range(start_date, num_months):
@@ -134,7 +134,7 @@ class PerformanceAnalysis:
 
         return account_summary["Gross Returns"]
 
-    def _calculate_time_weighted_returns(self):
+    def _calculate_time_weighted_returns(self) -> pd.DataFrame:
         """
         Calculate time-weighted performance for various time periods.
 
@@ -218,7 +218,7 @@ class PerformanceAnalysis:
 
         return risk_measurements
 
-    def _calculate_risked_adjusted_measures(self) -> pd.DataFrame:
+    def _calculate_risk_measures(self) -> pd.DataFrame:
         """
         Generate a portfolio report.
 

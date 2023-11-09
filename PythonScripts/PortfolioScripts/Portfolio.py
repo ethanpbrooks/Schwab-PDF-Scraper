@@ -14,9 +14,17 @@ class Portfolio:
     :param _performance: An instance of PerformanceAnalysis for analyzing the portfolio's performance.
     """
 
-    _pdf_scraper: PDFScraper  # PDFScraper should not be available to the user
+    _pdf_scraper: PDFScraper
     _assets: Assets
     _performance: PerformanceAnalysis
+
+    @property
+    def pdf_scraper(self):
+        """
+
+        :return: An instance of the PDF Scraper
+        """
+        return self._pdf_scraper
 
     @property
     def assets(self):

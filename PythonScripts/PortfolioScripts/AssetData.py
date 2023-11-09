@@ -1,6 +1,6 @@
 from PythonScripts.ScrapingScripts.PDFScraper import PDFScraper, pdf_scraper
 
-from typing import Dict
+from typing import Dict, List
 from dataclasses import dataclass
 
 import numpy as np
@@ -120,7 +120,27 @@ class Assets:
     def options(self):
         return self._categorize_asset_types_from_dataframe("Options", "Quantity")
 
+    @property
+    def sorted_by_weight(self):
+        return self._calculate_allocation_by_weight_to_total_account_value()
+
     # ____________________Calculations____________________
+    def _calculate_allocation_by_weight_to_total_account_value(self):
+        asset_classes: List[str] = [
+            "stocks", "exchange_traded_funds", "equity_funds",
+            "corporate_bonds", "bond_funds", "fixed_income_etfs",
+            "money_market_funds", "treasuries", "options"
+        ]
+
+        assets_sorted_by_weight = pd.DataFrame()
+        columns_to_extract = ["Name", "Weight", "Market Value"]
+
+        for asset in asset_classes:
+            asset_dataframe = getattr(self, asset)[columns_to_extract]
+            assets_sorted_by_weight = pd.concat([assets_sorted_by_weight, asset_dataframe], ignore_index=False)
+
+        return assets_sorted_by_weight.sort_values(by="Weight", ascending=False).reset_index(drop=True)
+
     def _calculate_asset_allocation(self) -> pd.DataFrame:
         """
         Calculate the assets of assets in the portfolio.
