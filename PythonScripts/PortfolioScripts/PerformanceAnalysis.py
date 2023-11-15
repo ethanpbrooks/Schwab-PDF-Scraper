@@ -38,8 +38,9 @@ class PerformanceAnalysis:
     def risk_measures(self):
         return self._calculate_risk_measures()
 
+    # ____________________Calculations____________________
     @staticmethod
-    def _calculate_month_range(start_date, num_months):
+    def calculate_month_range(start_date, num_months):
         """
         Calculate a range of month-year strings given a start date and a number of months.
 
@@ -74,7 +75,7 @@ class PerformanceAnalysis:
         start_date: str = self.pdf_scraper.currently_opened_statement.split(".")[0]
 
         # Calculate a list of file dates by subtracting the specified number of months.
-        statement_paths: List[str] = self._calculate_month_range(start_date, num_months)
+        statement_paths: List[str] = self.calculate_month_range(start_date, num_months)
 
         return statement_paths
 
@@ -161,7 +162,7 @@ class PerformanceAnalysis:
         # Convert the results to percentages rounded to two decimal places
         return np.round(time_weighted_returns * 100, 2)
 
-    def calculate_historical_account_values(self, num_months: int) -> pd.DataFrame:
+    def _calculate_historical_account_values(self, num_months: int) -> pd.DataFrame:
         """
         Retrieve historical account values for a specified number of months.
 
@@ -196,7 +197,7 @@ class PerformanceAnalysis:
         # Calculate historical percentage performance over the specified time period
         quarter, one_year, three_year, five_year = 3, 12, 12 * 3, 12 * 5
 
-        historical_percentage_returns = self.calculate_historical_account_values(five_year).pct_change()
+        historical_percentage_returns = self._calculate_historical_account_values(five_year).pct_change()
         year_to_date = datetime.strptime(historical_percentage_returns.index[-1], "%Y-%B").month
 
         # Define the time periods and corresponding column names

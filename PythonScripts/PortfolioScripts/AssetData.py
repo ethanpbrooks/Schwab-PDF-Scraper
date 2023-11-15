@@ -6,6 +6,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+import PythonScripts.Directories as Directories
+
 
 @dataclass
 class Assets:
@@ -116,15 +118,68 @@ class Assets:
         """
         return self.pdf_scraper.asset_composition.iloc[0]["Market Value"]
 
+    # ____________________Other Asset Classes____________________
     @property
     def options(self):
         return self._categorize_asset_types_from_dataframe("Options", "Quantity")
 
+    # ____________________Misc. Items____________________
     @property
-    def sorted_by_weight(self):
+    def holdings(self):
         return self._calculate_allocation_by_weight_to_total_account_value()
 
+    @property
+    def sector_allocation(self):
+        return self._calculate_sector_allocation()
+
+    @property
+    def sector_allocation_ungrouped(self):
+        return self._calculate_sector_allocation(group=False).sort_values(by="Sector")
+
     # ____________________Calculations____________________
+    def _calculate_sector_allocation(self, group: bool = True) -> pd.DataFrame:
+        """
+        Calculate sector allocation for stocks and exchange-traded funds.
+
+        :returns: DataFrame containing Symbol, Name, Market Value, Weight, and Sector columns.
+        """
+
+        # Define the columns to keep in the final DataFrame
+        columns = ["Symbol", "Name", "Market Value", "Weight", "Sector"]
+
+        # Get the sector-ticker mapping from the Directories class
+        sector_ticker_map = Directories.get_sector_tickers()
+
+        # Extract stocks DataFrame from the class attribute
+        stocks: pd.DataFrame = self.stocks
+
+        # Map tickers to sectors using apply and a lambda function
+        stocks["Sector"] = stocks["Symbol"].apply(
+            lambda ticker: next((sector for sector, tickers in sector_ticker_map.items() if ticker in tickers),
+                                "Not Classified")
+        )
+
+        # Fill NaN values in the 'Sector' column with the 'Not Classified' value
+        not_classified_value = "Not Classified"
+        stocks["Sector"].fillna(not_classified_value, inplace=True)
+
+        # Extract exchange-traded funds DataFrame from the class attribute
+        exchange_traded_funds = self.exchange_traded_funds
+
+        # Assign the 'Not Classified' value to the 'Sector' column for exchange-traded funds
+        exchange_traded_funds["Sector"] = [not_classified_value] * len(exchange_traded_funds)
+
+        # Concatenate stocks and exchange-traded funds DataFrames
+        equity_sectors = pd.concat([stocks[columns], exchange_traded_funds[columns]], ignore_index=True)
+
+        if not group:
+            return equity_sectors
+
+        sector_sum_df: pd.DataFrame = equity_sectors.groupby("Sector")[["Market Value", "Weight"]].sum().reset_index()
+
+
+        return sector_sum_df.sort_values(by="Weight", ascending=False).reset_index(drop=True)
+
     def _calculate_allocation_by_weight_to_total_account_value(self):
         asset_classes: List[str] = [
             "stocks", "exchange_traded_funds", "equity_funds",
