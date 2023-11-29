@@ -1,12 +1,14 @@
-from PythonScripts.PortfolioScripts.Portfolio import portfolio
+from PythonScripts.portfolio import portfolio
+
+
+def print_script_version() -> None:
+    current_version = "2.2.0"
+    print(f"PDF Scraper and Portfolio Analysis (Version {current_version})\n\n")
 
 
 def main():
-    print("PDF Scraper and Portfolio Analysis (Version 2.0.1)\n\n")  # Current Version of Script
-
-    return_contribution = portfolio.return_contribution  # Get Return Contribution
-    print(return_contribution)  # Print Results
-
+    print_script_version()  # Print Current Version of Script
+    portfolio.export_to_excel()  # Export all Data to Excel
 
 
 if __name__ == "__main__":

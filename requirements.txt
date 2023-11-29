@@ -5,3 +5,5 @@ dataclasses~=0.8
 xlwings~=0.29.1
 scipy~=1.10.0
 python-dateutil~=2.8.2
+PyMuPDF
+tqdm~=4.64.1

@@ -23,7 +23,6 @@ def extract_schwab_statements() -> str:
     Extract the "Schwab Portfolio 1. Schwab Statements" dictionary from the given JSON configuration file.
     :return: The "Schwab Portfolio 1. Schwab Statements" dictionary from the configuration file.
     """
-    statements = config.get('Schwab Portfolio Statements', {})
 
     return config["Most Recent Schwab Statement"]
 
@@ -85,4 +84,3 @@ def validate_statement_files() -> bool:
             raise ValueError(f"Invalid filename: {file_name}")
 
     return True
-

@@ -1,12 +1,45 @@
-from PythonScripts.ScrapingScripts.PDFScraper import PDFScraper, pdf_scraper
+# _________________________Standard Libraries_________________________
+import numpy as np
+import pandas as pd
+import os
 
 from typing import Dict, List
 from dataclasses import dataclass
 
-import numpy as np
-import pandas as pd
+# _________________________Custom Python Classes_________________________
+from PythonScripts.ScrapingScripts.PDFScraper import PDFScraper, pdf_scraper
 
-import PythonScripts.Directories as Directories
+# _________________________Custom Python Modules_________________________
+import PythonScripts.PortfolioScripts.Assets.MarketData as Md
+
+
+_sectors_csv_path = "4. Sectors"
+
+
+def get_sector_tickers() -> Dict[str, np.array]:
+    """
+    Retrieves a mapping of sectors to their corresponding ticker symbols from CSV files.
+
+    :returns Dict[str, np.array]: A dictionary where keys are sector names and values are arrays of ticker symbols.
+    """
+
+    # Get a list of CSV files in the specified path
+    sector_paths = os.listdir(_sectors_csv_path)
+
+    sector_ticker_map: Dict[str, np.array] = {}
+
+    # Loop through each CSV file in the specified path
+    for path in sector_paths:
+        # Build the full path to the CSV file
+        full_path = f"{_sectors_csv_path}/{path}"
+
+        # Add the sector-ticker mapping to the dictionary
+        tickers = pd.read_csv(full_path)["Symbol"].to_numpy()
+        sector_name = path.removesuffix(".csv")
+
+        sector_ticker_map[sector_name] = tickers
+
+    return sector_ticker_map
 
 
 @dataclass
@@ -22,12 +55,12 @@ class Assets:
     pdf_scraper: PDFScraper
 
     @property
-    def allocation(self):
+    def allocation(self) -> pd.DataFrame:
         return self._calculate_asset_allocation()
 
     # ____________________Equities____________________
     @property
-    def stocks(self):
+    def stocks(self) -> pd.DataFrame:
         """
         Get and categorize stocks from the data.
 
@@ -36,7 +69,7 @@ class Assets:
         return self._categorize_asset_types_from_dataframe("Stocks", "Quantity")
 
     @property
-    def exchange_traded_funds(self):
+    def exchange_traded_funds(self) -> pd.DataFrame:
         """
         Get and categorize equity-based exchange-traded funds (ETFs) from the data.
 
@@ -45,7 +78,7 @@ class Assets:
         return self._categorize_exchange_traded_funds_from_dataframe("Equity")
 
     @property
-    def equity_funds(self):
+    def equity_funds(self) -> pd.DataFrame:
         """
         Get and categorize equity funds from the data.
 
@@ -55,7 +88,7 @@ class Assets:
 
     # ____________________Fixed Income____________________
     @property
-    def fixed_income_etfs(self):
+    def fixed_income_etfs(self) -> pd.DataFrame:
         """
         Get and categorize fixed income-based exchange-traded funds (ETFs) from the data.
 
@@ -64,7 +97,7 @@ class Assets:
         return self._categorize_exchange_traded_funds_from_dataframe("Fixed Income")
 
     @property
-    def corporate_bonds(self):
+    def corporate_bonds(self) -> pd.DataFrame:
         """
         Get and categorize corporate bonds from the data.
 
@@ -73,7 +106,7 @@ class Assets:
         return self._categorize_asset_types_from_dataframe("Corporate Bonds", "Par")
 
     @property
-    def bond_partial_calls(self):
+    def bond_partial_calls(self) -> pd.DataFrame:
         """
         Get and categorize bond partial calls from the data.
 
@@ -82,7 +115,7 @@ class Assets:
         return self._categorize_asset_types_from_dataframe("Bond Partial Calls", "Par")
 
     @property
-    def bond_funds(self):
+    def bond_funds(self) -> pd.DataFrame:
         """
         Get and categorize bond funds from the data.
 
@@ -92,7 +125,7 @@ class Assets:
 
     # ____________________Cash & Cash Equivalents____________________
     @property
-    def money_market_funds(self):
+    def money_market_funds(self) -> pd.DataFrame:
         """
         Get and categorize money market funds from the data.
 
@@ -101,7 +134,7 @@ class Assets:
         return self._categorize_asset_types_from_dataframe("Money Market Funds", "Quantity")
 
     @property
-    def treasuries(self):
+    def treasuries(self) -> pd.DataFrame:
         """
         Get and categorize U.S. Treasuries from the data.
 
@@ -110,7 +143,7 @@ class Assets:
         return self._categorize_asset_types_from_dataframe("U.S. Treasuries", "Par")
 
     @property
-    def cash_holding(self):
+    def cash_holding(self) -> pd.DataFrame:
         """
         Get the market value of cash holdings from the data.
 
@@ -126,17 +159,31 @@ class Assets:
     # ____________________Misc. Items____________________
     @property
     def holdings(self):
+        """
+        Calculate and return the allocation of holdings based on weights to the total account value.
+
+        :returns: DataFrame containing the calculated allocation of holdings.
+        """
         return self._calculate_allocation_by_weight_to_total_account_value()
 
     @property
     def sector_allocation(self):
+        """
+        Calculate and return the sector allocation based on holdings.
+
+        :returns: DataFrame containing the calculated sector allocation.
+        """
         return self._calculate_sector_allocation()
 
     @property
-    def sector_allocation_ungrouped(self):
-        return self._calculate_sector_allocation(group=False).sort_values(by="Sector")
+    def assets_sorted_by_sectors(self):
+        """
+        Calculate and return the sector allocation without grouping, sorted by sector names.
 
-    # ____________________Calculations____________________
+        :returns: DataFrame containing the sorted sector allocation without grouping.
+        """
+        return self._calculate_sector_allocation(group=False).sort_values(by="Sector").reset_index(drop=True)
+
     def _calculate_sector_allocation(self, group: bool = True) -> pd.DataFrame:
         """
         Calculate sector allocation for stocks and exchange-traded funds.
@@ -148,15 +195,15 @@ class Assets:
         columns = ["Symbol", "Name", "Market Value", "Weight", "Sector"]
 
         # Get the sector-ticker mapping from the Directories class
-        sector_ticker_map = Directories.get_sector_tickers()
+        sector_ticker_map = get_sector_tickers()
 
         # Extract stocks DataFrame from the class attribute
         stocks: pd.DataFrame = self.stocks
 
         # Map tickers to sectors using apply and a lambda function
-        stocks["Sector"] = stocks["Symbol"].apply(
-            lambda ticker: next((sector for sector, tickers in sector_ticker_map.items() if ticker in tickers),
-                                "Not Classified")
+        stocks["Sector"] = stocks["Symbol"].apply(lambda ticker: next(
+                (sector for sector, tickers in sector_ticker_map.items() if ticker in tickers),
+                "Not Classified")
         )
 
         # Fill NaN values in the 'Sector' column with the 'Not Classified' value
@@ -165,18 +212,21 @@ class Assets:
 
         # Extract exchange-traded funds DataFrame from the class attribute
         exchange_traded_funds = self.exchange_traded_funds
+        exchange_traded_funds["Sector"] = ["Equity ETF"] * len(exchange_traded_funds)
 
-        # Assign the 'Not Classified' value to the 'Sector' column for exchange-traded funds
-        exchange_traded_funds["Sector"] = [not_classified_value] * len(exchange_traded_funds)
+        fixed_income_etfs = self.fixed_income_etfs
+        fixed_income_etfs["Sector"] = ["Fixed Income ETF"] * len(fixed_income_etfs)
 
         # Concatenate stocks and exchange-traded funds DataFrames
-        equity_sectors = pd.concat([stocks[columns], exchange_traded_funds[columns]], ignore_index=True)
+        portfolio_sectors = pd.concat([
+            stocks[columns], exchange_traded_funds[columns], fixed_income_etfs[columns]
+        ], ignore_index=True)
 
         if not group:
-            return equity_sectors
+            return portfolio_sectors
 
-        sector_sum_df: pd.DataFrame = equity_sectors.groupby("Sector")[["Market Value", "Weight"]].sum().reset_index()
-
+        sector_sum_df: pd.DataFrame = portfolio_sectors.groupby("Sector")[["Market Value", "Weight"]].sum()
+        sector_sum_df = sector_sum_df.reset_index()
 
         return sector_sum_df.sort_values(by="Weight", ascending=False).reset_index(drop=True)
 
@@ -232,6 +282,7 @@ class Assets:
 
         return asset_allocation.round(2)
 
+    # ____________________Validation____________________
     def _validate_calculated_asset_allocation(self, calculated_allocation: pd.DataFrame, file_name: str) -> None:
         """
         Validate the calculated asset assets against the scraped asset assets.
